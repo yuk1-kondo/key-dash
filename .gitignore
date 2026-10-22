@@ -159,3 +159,9 @@ TODO
 /state.txt.tmp
 *.deb
 *.zip
+
+# Online service runtime, not source
+node_modules/
+.wrangler/
+.dev.vars
+*.log

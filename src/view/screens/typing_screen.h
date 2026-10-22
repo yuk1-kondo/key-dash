@@ -17,6 +17,7 @@ private:
     void game();
     void results();
     void help();
+    void online();
     void footer(const char* first, const char* second, const char* third);
     lv_obj_t* rectangle(lv_obj_t* parent, int x, int y, int width, int height, uint32_t color, int radius = 0);
     lv_obj_t* text(lv_obj_t* parent, int x, int y, const char* value, const lv_font_t* font, uint32_t color);
@@ -37,6 +38,9 @@ private:
     model::TypingPage visible_page_{model::TypingPage::Help};
     model::WordPack visible_pack_{model::WordPack::Code};
     model::TypingMode visible_mode_{model::TypingMode::Practice};
+    viewmodel::OnlinePanel visible_panel_{viewmodel::OnlinePanel::None};
+    std::string visible_message_, visible_name_;
+    unsigned visible_duration_{0};
     bool daylight_{true}, storage_warning_{false};
     uint32_t background_{0}, surface_{0}, ink_{0}, muted_{0}, accent_{0}, danger_{0};
 };

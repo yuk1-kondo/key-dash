@@ -4,7 +4,9 @@
 
 ![KEY DASH](screenshot/game.png)
 
-C++17 / LVGL 9.5. Based on the MIT-licensed CardputerZero Template and the local KEY CRITTER display, keyboard, packaging and screenshot infrastructure. No accounts, network access, root execution, external hardware, or background service.
+C++17 / LVGL 9.5. Based on the MIT-licensed CardputerZero Template and the local KEY CRITTER display, keyboard, packaging and screenshot infrastructure. Offline play works without a connection. Optional online challenges use a public player name and a private per-player key. No root execution, external hardware, or background service.
+
+Public leaderboard: https://yuk1-kondo.github.io/key-dash-ranking/
 
 ## Play
 
@@ -14,6 +16,8 @@ C++17 / LVGL 9.5. Based on the MIT-licensed CardputerZero Template and the local
 - **Tab**: English / Code vocabulary (64 short words in each).
 - **0**: paper / night theme, from the menu or results.
 - **4 / hardware Help**: controls, from the menu.
+- **5**: online challenge and leaderboards. Enter registers a player name, then starts a challenge; 1/2 chooses 30/60 seconds, Tab chooses words, 4 opens the top five. Name and score are public. Wi-Fi is required.
+- Online results upload automatically; **5** retries a failed upload with the same challenge. Scores need at least one completed word. **4** opens rankings from online results.
 - **Enter**: replay the selected mode.
 - **Esc**: return to the menu; from the menu, save and quit.
 
@@ -28,6 +32,26 @@ The built-in desktop simulator also lets you click the physical keys on the Card
 - **Accuracy** = correct printable-key attempts ÷ all printable-key attempts. Backspace does not count as a new attempt, and correcting a typo does not remove it from the attempt history. Premature/wrong Space/Enter submissions count as errors.
 - Timed rounds end at exactly 30 or 60 seconds. Late input cannot extend the round or increase the score. Untimed practice ends after ten correctly confirmed words.
 - Personal bests are independent for all three modes and both word packs. A cancelled round creates no record. Practice also records its own best, separately from timed sprints.
+
+## Online rankings
+
+The site is hosted on GitHub Pages; Cloudflare Worker + D1 handles public registration, challenges, server-side replay scoring and storage. GitHub login is not required for players. Boards are separate for 30/60 seconds and English/Code. See [online/README.md](online/README.md) for the API, limits, data retention and setup.
+
+Only selecting Online makes network requests. Normal play is local. Registration uses a public 3–12 character ASCII name; a random personal key is stored as `online-player.json` beside the save with owner-only file permissions. Keep a private backup when changing devices; there is no password-recovery flow. Do not share that file or put it in GitHub Issues.
+
+A network thread performs bounded HTTPS requests with certificate verification and an 8-second timeout. The compiled API URL can be changed with CMake `KEY_DASH_API_URL`; the environment variable of the same name overrides it at runtime. HTTP is accepted only for localhost development. No administrative or GitHub tokens are embedded in the app. The public endpoint is `https://key-dash-ranking.yukilab-m.workers.dev`.
+
+Online runs use a server-issued word seed. The server recalculates WPM/accuracy from the timed key events, rejects premature/expired submissions, and safely accepts retries. This reduces casual score forgery; it is not proof against bots or a modified client. Input events are not retained in D1. Names and bests remain public until deletion is requested from the ranking repository administrator.
+
+For an isolated native→API→D1→native leaderboard integration test, run a local Wrangler instance as described in `online/README.md`, then:
+
+```sh
+KEY_DASH_API_URL=http://127.0.0.1:8787 \
+KEY_DASH_STATE_DIR="$PWD/.cache/online-test-state" \
+./build/darwin-arm64/Debug/typing-online-flow-tests
+```
+
+This test takes 30 seconds and refuses a public endpoint. It registers a test player in the local database, corrects a typo, submits a round, and verifies the actual returned ranking.
 
 ## Save data
 
@@ -77,12 +101,12 @@ python3 scripts/package_deb.py
 python3 scripts/validate_release.py
 ```
 
-The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.1.0-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
+The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.2.0-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
 
 After copying the package to the device:
 
 ```sh
-sudo apt install ./key-dash_0.1.0-rev1_arm64.deb
+sudo apt install ./key-dash_0.2.0-rev1_arm64.deb
 ```
 
 APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display is `/dev/fb0`; the existing platform driver discovers evdev keyboards, with A–Z, digits, Space, Enter, Backspace and Tab mapping. Existing non-root access to the device nodes is required. Do not run as root.
@@ -91,14 +115,16 @@ APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display 
 
 ## Store preparation
 
-`app-builder.json` is an unpublished draft. All seven optional permissions are false. The source URL is omitted until a real source repository exists, and the globally unique four-character share code is deliberately blank. `scripts/validate_release.py --require-store` rejects those unfinished fields; the inherited template validator also rejects the missing source URL. No repository URL, share code or hardware demonstration is fabricated.
+`app-builder.json` is an unpublished Store draft. Network permission is true for optional online features; the other six optional permissions remain false. The source repository is https://github.com/yuk1-kondo/key-dash (currently private), while the ranking website/API source is public at https://github.com/yuk1-kondo/key-dash-ranking. The globally unique four-character share code is deliberately blank. `scripts/validate_release.py --require-store` rejects the unfinished share code. Store reviewers will also need access to the native source.
 
-Before submission, test on the real device and film **APPLaunch → start → typing and typo correction → round result → exit**. Attach that physical-device demo to the Store submission PR. Simulator video is not a substitute. Publishing to GitHub or the Store is a separate action.
+Before submission, test on the real device and film **APPLaunch → start → typing and typo correction → round result → exit**. Attach that physical-device demo to the Store submission PR. Simulator video is not a substitute. GitHub publication does not constitute a Store submission.
 
 ## Structure / license
 
 - `src/model/typing_model.*`: words, attempts, accuracy, time limits, WPM and record persistence, without LVGL.
-- `src/viewmodel/typing_viewmodel.*`: key actions, round finalization and reactive updates.
+- `src/viewmodel/typing_viewmodel.*`, `typing_online.cpp`: key actions, round finalization, online flow and reactive updates.
+- `src/network/online_client.*`: bounded asynchronous HTTPS requests.
+- `online/`: Pages site, Worker, D1 schema and API tests (mirrored to the public ranking repository).
 - `src/view/screens/typing_screen.*`: native 320×170 home, game, results and help.
 - `src/platform/monotonic_clock.h`: shared monotonic clock for keys, rendering and deadlines.
 - `tests/typing_model_tests.cpp`, `tests/typing_controller_tests.cpp`: correction history, score invariants, deadline boundaries, persistence and keyboard routing.

@@ -1,11 +1,11 @@
 {
   "app_name": "KEY DASH",
   "package_name": "key-dash",
-  "version": "0.1.0",
-  "description": "An offline typing game for the CardputerZero keyboard.",
+  "version": "0.2.0",
+  "description": "A pocket typing game with optional online rankings for CardputerZero.",
   "store": {
     "summary": "Small keys. Quick fingers. A pocket typing challenge.",
-    "description": "Type short English or programming words in 30-second, 60-second or untimed ten-word rounds. Live WPM, accuracy, typo correction and personal bests. Entirely offline.",
+    "description": "Type short English or programming words in 30-second, 60-second or untimed ten-word rounds. Live WPM, accuracy, typo correction and local personal bests. Optional online challenges share your player name and server-verified score on public leaderboards. Offline play does not connect.",
     "locales": {
       "ja": {
         "summary": "短い単語を打って、速さと正確さに挑戦。小さなキーボードのタイピングゲーム。"
@@ -18,7 +18,9 @@
     "screenshots": [
       "screenshot/home.png",
       "screenshot/game.png",
-      "screenshot/results.png"
+      "screenshot/results.png",
+      "screenshot/online-menu.png",
+      "screenshot/online-name.png"
     ],
     "icon": "assets/images/key-dash.png",
     "license": "MIT",
@@ -31,10 +33,11 @@
       "camera": false,
       "microphone": false,
       "imu": false,
-      "network": false,
+      "network": true,
       "additional_hardware": false,
       "background_service": false,
       "external_display": false
-    }
+    },
+    "source_repo": "https://github.com/yuk1-kondo/key-dash"
   }
 }

@@ -3,11 +3,12 @@ from pathlib import Path
 import argparse, io, json, re, struct, tarfile
 root=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser()
-parser.add_argument('--deb',type=Path,default=root/'dist/key-dash_0.1.0-rev1_arm64.deb')
+parser.add_argument('--deb',type=Path,default=None)
 parser.add_argument('--require-store',action='store_true')
 args=parser.parse_args()
 manifest=json.loads((root/'app-builder.json').read_text());store=manifest['store']
-raw=args.deb.read_bytes();assert raw[:8]==b'!<arch>\n','Not a Debian ar archive'
+deb=args.deb or root/f"dist/key-dash_{manifest['version']}-rev1_arm64.deb"
+raw=deb.read_bytes();assert raw[:8]==b'!<arch>\n','Not a Debian ar archive'
 parts={};offset=8
 while offset<len(raw):
  header=raw[offset:offset+60];assert header[58:60]==b'`\n';length=int(header[48:58])
@@ -30,7 +31,8 @@ for path in store['screenshots']:
 icon=(root/store['icon']).read_bytes();assert struct.unpack('>II',icon[16:24])==(256,256)
 permissions={'camera','microphone','imu','network','additional_hardware','background_service','external_display'}
 assert set(store['permissions'])==permissions
-assert all(value is False for value in store['permissions'].values())
+assert store['permissions']['network'] is True
+assert all(value is False for name,value in store['permissions'].items() if name!='network')
 assert 1<=len(store['categories'])<=2
 pending=[]
 if not re.fullmatch('[A-Z0-9]{4}',store.get('share_code','')):pending.append('Choose and check a globally unique four-character share code.')

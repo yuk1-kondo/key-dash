@@ -21,6 +21,7 @@ class TypingModel {
 public:
     explicit TypingModel(std::filesystem::path save_file);
     void prepare(TypingMode mode, uint64_t now);
+    void prepare_online(TypingMode mode, WordPack pack, uint32_t seed, uint64_t now);
     void type(char character, uint64_t now);
     void backspace(uint64_t now);
     void back();

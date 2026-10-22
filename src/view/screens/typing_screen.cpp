@@ -50,7 +50,10 @@ void TypingScreen::rebuild() {
     accent_ = daylight_ ? 0x257b68 : 0xb5e5ad;
     danger_ = daylight_ ? 0xbe4f45 : 0xf29a85;
     lv_obj_set_style_bg_color(content_, lv_color_hex(background_), 0); lv_obj_set_style_bg_opa(content_, LV_OPA_COVER, 0);
-    if (is_game(visible_page_)) game();
+    visible_panel_ = typing_.online_panel(); visible_message_ = typing_.online_message();
+    visible_name_ = typing_.name_input(); visible_duration_ = typing_.online_duration();
+    if (visible_panel_ != viewmodel::OnlinePanel::None) online();
+    else if (is_game(visible_page_)) game();
     else if (visible_page_ == model::TypingPage::Home) home();
     else if (visible_page_ == model::TypingPage::Results) results();
     else help();
@@ -83,10 +86,10 @@ void TypingScreen::home() {
         auto* label = text(chip, 0, 0, modes[index], &lv_font_montserrat_12, selected ? background_ : ink_);
         lv_obj_center(label);
     }
-    footer("Tab  Words", "0  Theme", "4 Help / Esc");
+    footer("Tab Words", "5 Online", "4 Help / Esc");
 }
 void TypingScreen::game() {
-    text(content_, 12, 7, model::TypingModel::mode_name(visible_mode_), &lv_font_montserrat_12, ink_);
+    text(content_, 12, 7, typing_.online_round() ? "ONLINE SPRINT" : model::TypingModel::mode_name(visible_mode_), &lv_font_montserrat_12, ink_);
     timer_ = text(content_, 142, 6, "30s", &lv_font_montserrat_14, ink_);
     speed_ = text(content_, 232, 7, "0 WPM", &lv_font_montserrat_12, accent_);
     lv_obj_set_width(speed_, 76); lv_obj_set_style_text_align(speed_, LV_TEXT_ALIGN_RIGHT, 0);
@@ -119,8 +122,9 @@ void TypingScreen::results() {
         static_cast<unsigned long long>(state.elapsed_ms(0) / 1000), model::TypingModel::pack_name(visible_pack_));
     text(content_, 14, 106, buffer, &lv_font_montserrat_12, muted_);
     std::snprintf(buffer, sizeof(buffer), "Personal best: %u WPM", state.best_wpm());
-    text(content_, 14, 126, buffer, &lv_font_montserrat_12, accent_);
-    footer("Enter  Again", "Esc  Menu", "0  Theme");
+    auto* status = text(content_, 14, 123, typing_.online_round() ? typing_.online_message().c_str() : buffer, &lv_font_montserrat_12, accent_);
+    lv_obj_set_size(status, 294, 25); lv_label_set_long_mode(status, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    footer("Enter Again", "Esc Menu", typing_.online_round() ? "4 Rankings" : "0 Theme");
 }
 void TypingScreen::help() {
     text(content_, 12, 8, "A TINY TYPING CHALLENGE", &lv_font_montserrat_12, ink_);
@@ -130,12 +134,55 @@ void TypingScreen::help() {
     text(content_, 12, 76, "Type a word, then Space or Enter.", &lv_font_montserrat_12, ink_);
     text(content_, 12, 96, "Backspace fixes typos. Esc stops.", &lv_font_montserrat_12, ink_);
     text(content_, 12, 117, "1 word = 5 characters. Autosaves.", &lv_font_montserrat_12, muted_);
-    footer("Enter  Close", "Esc  Back", "OFFLINE");
+    footer("Enter Close", "Esc Back", "5 Online");
+}
+void TypingScreen::online() {
+    using viewmodel::OnlinePanel;
+    const auto panel = typing_.online_panel();
+    char buffer[100];
+    text(content_, 12, 7, "KEY DASH / ONLINE", &lv_font_montserrat_12, accent_);
+    rectangle(content_, 12, 27, 296, 1, surface_);
+    if (panel == OnlinePanel::Name) {
+        text(content_, 12, 36, "Choose your player name", &lv_font_montserrat_16, ink_);
+        rectangle(content_, 12, 63, 296, 31, surface_, 4);
+        std::snprintf(buffer, sizeof(buffer), "%s_", typing_.name_input().c_str());
+        text(content_, 20, 68, buffer, &lv_font_montserrat_20, ink_);
+        text(content_, 12, 101, "3-12 letters, digits, _ or -", &lv_font_montserrat_12, muted_);
+        footer("Enter Register", "Bksp Fix", "Esc Back");
+    } else if (panel == OnlinePanel::Board) {
+        std::snprintf(buffer, sizeof(buffer), "%us / %s / TOP 5", typing_.online_duration(), model::TypingModel::pack_name(visible_pack_));
+        text(content_, 12, 34, buffer, &lv_font_montserrat_12, ink_);
+        int y = 53;
+        for (const auto& row : typing_.ranking()) {
+            std::snprintf(buffer, sizeof(buffer), "%u  %-12s", row.rank, row.name.c_str());
+            text(content_, 12, y, buffer, &lv_font_montserrat_12, ink_);
+            std::snprintf(buffer, sizeof(buffer), "%u WPM %u%%", row.wpm, row.accuracy);
+            auto* label = text(content_, 205, y, buffer, &lv_font_montserrat_12, accent_);
+            lv_obj_set_width(label, 103); lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_RIGHT, 0); y += 18;
+        }
+        if (typing_.ranking().empty()) text(content_, 12, 78, "No scores yet. Be the first!", &lv_font_montserrat_14, muted_);
+        footer("1 30s / 2 60s", "Tab Words", "Esc Menu");
+        return;
+    } else if (panel == OnlinePanel::Busy) {
+        text(content_, 12, 53, "Connecting...", &lv_font_montserrat_20, ink_);
+        text(content_, 12, 87, "Please wait a moment.", &lv_font_montserrat_12, muted_);
+        footer("Wi-Fi required", "", "ONLINE");
+    } else {
+        std::snprintf(buffer, sizeof(buffer), "Player: %s", typing_.player_name().empty() ? "not registered" : typing_.player_name().c_str());
+        text(content_, 12, 37, buffer, &lv_font_montserrat_14, ink_);
+        std::snprintf(buffer, sizeof(buffer), "%us / %s", typing_.online_duration(), model::TypingModel::pack_name(visible_pack_));
+        text(content_, 12, 62, buffer, &lv_font_montserrat_20, accent_);
+        text(content_, 12, 94, "1 30s / 2 60s   Tab: words", &lv_font_montserrat_12, muted_);
+        footer("Enter Start", "4 Rankings", "Esc Back");
+    }
+    auto* status = text(content_, 12, 124, typing_.online_message().c_str(), &lv_font_montserrat_12, muted_);
+    lv_obj_set_size(status, 296, 21); lv_label_set_long_mode(status, LV_LABEL_LONG_SCROLL_CIRCULAR);
 }
 void TypingScreen::refresh(uint64_t now) {
     const auto& state = typing_.state();
     const bool transitioned = state.page() != visible_page_ && !(is_game(state.page()) && is_game(visible_page_));
-    if (transitioned || state.records().selected_pack != visible_pack_ || state.records().selected_mode != visible_mode_ ||
+    if (typing_.online_panel() != visible_panel_ || typing_.online_message() != visible_message_ ||
+        typing_.name_input() != visible_name_ || typing_.online_duration() != visible_duration_ || transitioned || state.records().selected_pack != visible_pack_ || state.records().selected_mode != visible_mode_ ||
         state.records().daylight != daylight_ || storage_warning_ != !state.storage_error().empty()) rebuild();
     if (!timer_) return;
     char buffer[96];

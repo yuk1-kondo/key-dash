@@ -126,6 +126,13 @@ void TypingModel::prepare(TypingMode mode, uint64_t now) {
     if (!random_state_) random_state_ = 1;
     next_word();
 }
+void TypingModel::prepare_online(TypingMode mode, WordPack pack, uint32_t seed, uint64_t now) {
+    prepare(mode, now);
+    records_.selected_pack = pack;
+    random_state_ = seed ? seed : 1;
+    word_.clear();
+    next_word();
+}
 uint64_t TypingModel::limit_ms() const {
     if (records_.selected_mode == TypingMode::Practice) return 0;
     return records_.selected_mode == TypingMode::Sprint60 ? 60000 : 30000;

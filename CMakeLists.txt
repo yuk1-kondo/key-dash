@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.31)
 
-project(key-dash VERSION 0.1.0 LANGUAGES C CXX)
+project(key-dash VERSION 0.2.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -428,6 +428,25 @@ target_link_libraries(${PROJECT_NAME}_platform
         lvgl
 )
 
+# Explicit, opt-in networking. The GUI polls futures; curl never runs on the LVGL thread.
+set(KEY_DASH_API_URL "https://key-dash-ranking.yukilab-m.workers.dev" CACHE STRING "Public ranking API base URL (HTTPS)")
+if(USE_DESKTOP)
+    find_package(CURL REQUIRED)
+    set(KEY_DASH_CURL CURL::libcurl)
+else()
+    cm0_find_header(CURL_INCLUDE_DIR curl/curl.h ${CM0_INCLUDE_HINTS})
+    cm0_find_library(CURL_LIBRARY curl)
+    if(NOT CURL_INCLUDE_DIR OR NOT CURL_LIBRARY)
+        message(FATAL_ERROR "Missing libcurl in BSP")
+    endif()
+    cm0_add_imported_library(CM0::CURL "${CURL_LIBRARY}" "${CURL_INCLUDE_DIR}")
+    set(KEY_DASH_CURL CM0::CURL)
+endif()
+add_library(key-dash_network STATIC src/network/online_client.cpp)
+target_include_directories(key-dash_network PUBLIC src/network ${PLATFORM_INCLUDE_DIR})
+target_link_libraries(key-dash_network PUBLIC ${KEY_DASH_CURL} ${PLATFORM_LIBS})
+target_compile_definitions(key-dash_network PRIVATE KEY_DASH_API_URL="${KEY_DASH_API_URL}")
+
 # ====================================================
 # Model sources
 # ====================================================
@@ -491,6 +510,7 @@ target_include_directories(${PROJECT_NAME}_view
         ${CMAKE_CURRENT_SOURCE_DIR}/src/app
         ${CMAKE_CURRENT_SOURCE_DIR}/src/reactive
         ${CMAKE_CURRENT_SOURCE_DIR}/src/viewmodel
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/network
         ${CMAKE_CURRENT_SOURCE_DIR}/src/model
         ${CMAKE_CURRENT_SOURCE_DIR}/src/platform
 )
@@ -518,6 +538,7 @@ add_library(${PROJECT_NAME}_viewmodel
 target_include_directories(${PROJECT_NAME}_viewmodel
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/src/viewmodel/"
+        "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/model"
         ${LVGL_INCLUDE_DIR}
 )
@@ -528,6 +549,7 @@ target_link_libraries(${PROJECT_NAME}_viewmodel
         ${PROJECT_NAME}_reactive
         ${PROJECT_NAME}_model
         ${PROJECT_NAME}_platform
+        key-dash_network
 )
 
 
@@ -577,6 +599,7 @@ target_include_directories(${PROJECT_NAME}_core
         ${CMAKE_CURRENT_SOURCE_DIR}/src/view/screens
         ${CMAKE_CURRENT_SOURCE_DIR}/src/view/widgets
         ${CMAKE_CURRENT_SOURCE_DIR}/src/viewmodel
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/network
         ${CMAKE_CURRENT_SOURCE_DIR}/src/model
         ${CMAKE_CURRENT_SOURCE_DIR}/src/platform
 )
@@ -641,4 +664,6 @@ if(BUILD_TESTING AND USE_DESKTOP)
     add_executable(typing-controller-tests tests/typing_controller_tests.cpp)
     target_link_libraries(typing-controller-tests PRIVATE ${PROJECT_NAME}_viewmodel)
     add_test(NAME typing-controller COMMAND typing-controller-tests)
+    add_executable(typing-online-flow-tests tests/online_flow_tests.cpp)
+    target_link_libraries(typing-online-flow-tests PRIVATE ${PROJECT_NAME}_viewmodel)
 endif()

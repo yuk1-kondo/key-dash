@@ -21,8 +21,8 @@ Section: APPLaunch
 Priority: optional
 Architecture: arm64
 Maintainer: yuk1-kondo
-Depends: libc6 (>= 2.34), libstdc++6 (>= 11), libgcc-s1, libfreetype6, libpng16-16t64 | libpng16-16, libjpeg62-turbo, zlib1g
-Description: An offline typing game for CardputerZero
+Depends: libc6 (>= 2.34), libstdc++6 (>= 11), libgcc-s1, libfreetype6, libpng16-16t64 | libpng16-16, libjpeg62-turbo, zlib1g, libcurl4t64 | libcurl4, ca-certificates
+Description: A typing game with optional online rankings for CardputerZero
  Type short words in timed or untimed rounds and track personal bests.
 '''
 desktop = '''[Desktop Entry]
@@ -48,6 +48,7 @@ files=[('usr/bin/key-dash',binary,0o755),
  ('usr/share/doc/key-dash/LICENSE',(root/'LICENSE').read_bytes(),0o644)]
 for label,path in [
  ('lvgl',root/'.cache/cp0-deps/lvgl-src/LICENCE.txt'),
+ ('nlohmann-json',root/'third_party/nlohmann/LICENSE.MIT'),
  ('fmt',root/'.cache/cp0-deps/fmt-src/LICENSE.rst'),
  ('thorvg',root/'.cache/cp0-deps/lvgl-src/src/libs/thorvg/LICENSE.txt')]:
  if path.exists(): files.append((f'usr/share/doc/key-dash/licenses/{label}.txt',path.read_bytes(),0o644))

@@ -1,5 +1,5 @@
 from pathlib import Path
-import shutil, plistlib, subprocess, tempfile, os, zipfile
+import shutil, plistlib, subprocess, tempfile, os, zipfile, json
 project=Path(__file__).resolve().parents[1];root=project
 (project/'dist').mkdir(exist_ok=True)
 app=Path(tempfile.mkdtemp(prefix='key-dash-preview-',dir='/private/tmp'))/'KEY DASH.app'
@@ -7,7 +7,7 @@ mac=app/'Contents/MacOS';resources=app/'Contents/Resources';frameworks=app/'Cont
 for p in (mac,resources,frameworks):p.mkdir(parents=True,exist_ok=True)
 main=mac/'key-dash';shutil.copy2(project/'build/darwin-arm64/Debug/key-dash',main)
 shutil.copytree(project/'assets',resources/'assets',dirs_exist_ok=True)
-plist={'CFBundleExecutable':'key-dash','CFBundleName':'KEY DASH','CFBundleDisplayName':'KEY DASH','CFBundleIdentifier':'local.key-dash.preview','CFBundleVersion':'1','CFBundleShortVersionString':'0.1.0','CFBundlePackageType':'APPL','NSHighResolutionCapable':True,'LSMinimumSystemVersion':'13.0'}
+plist={'CFBundleExecutable':'key-dash','CFBundleName':'KEY DASH','CFBundleDisplayName':'KEY DASH','CFBundleIdentifier':'local.key-dash.preview','CFBundleVersion':'1','CFBundleShortVersionString':json.loads((project/'app-builder.json').read_text())['version'],'CFBundlePackageType':'APPL','NSHighResolutionCapable':True,'LSMinimumSystemVersion':'13.0'}
 (app/'Contents/Info.plist').write_bytes(plistlib.dumps(plist))
 queue=[(main,main)];seen=set();dependencies=[]
 while queue:
@@ -27,6 +27,7 @@ while queue:
 licenses=resources/'licenses';licenses.mkdir(exist_ok=True)
 for name,path in {
  'Template-MIT.txt':project/'LICENSE',
+ 'nlohmann-json.txt':project/'third_party/nlohmann/LICENSE.MIT',
  'SDL2.txt':Path('/opt/homebrew/opt/sdl2/LICENSE.txt'),
  'fmt.txt':Path('/opt/homebrew/opt/fmt/LICENSE'),
  'FreeType.txt':Path('/opt/homebrew/opt/freetype/LICENSE.TXT'),

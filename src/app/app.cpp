@@ -78,7 +78,16 @@ public:
         if (output_.empty()) return false;
         if (!started_) { started_ = now; return false; }
         const auto elapsed = now - started_;
-        if (stage_ == 0 && elapsed >= 250) { capture("home.png"); vm.key('4', now); ++stage_; }
+        if (stage_ == 0 && elapsed >= 250) {
+            capture("home.png");
+            vm.key('5', now); capture("online-menu.png");
+            vm.key(LV_KEY_ENTER, now);
+            if (vm.online_panel() == viewmodel::OnlinePanel::Name) {
+                for (char key : std::string("player1")) vm.key(key, now);
+                capture("online-name.png");
+            }
+            vm.key(LV_KEY_ESC, now); vm.key('4', now); ++stage_;
+        }
         else if (stage_ == 1 && elapsed >= 500) { capture("help.png"); vm.key(LV_KEY_ESC, now); vm.key('0', now); ++stage_; }
         else if (stage_ == 2 && elapsed >= 750) { capture("night.png"); vm.key('0', now); vm.key(LV_KEY_NEXT, now); ++stage_; }
         else if (stage_ == 3 && elapsed >= 1000) { capture("code-menu.png"); vm.key('3', now); ++stage_; }
