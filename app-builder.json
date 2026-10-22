@@ -1,0 +1,40 @@
+{
+  "app_name": "KEY DASH",
+  "package_name": "key-dash",
+  "version": "0.1.0",
+  "description": "An offline typing game for the CardputerZero keyboard.",
+  "store": {
+    "summary": "Small keys. Quick fingers. A pocket typing challenge.",
+    "description": "Type short English or programming words in 30-second, 60-second or untimed ten-word rounds. Live WPM, accuracy, typo correction and personal bests. Entirely offline.",
+    "locales": {
+      "ja": {
+        "summary": "短い単語を打って、速さと正確さに挑戦。小さなキーボードのタイピングゲーム。"
+      }
+    },
+    "categories": [
+      "Games",
+      "Education"
+    ],
+    "screenshots": [
+      "screenshot/home.png",
+      "screenshot/game.png",
+      "screenshot/results.png"
+    ],
+    "icon": "assets/images/key-dash.png",
+    "license": "MIT",
+    "author": {
+      "display_name": "yuk1-kondo",
+      "github": "yuk1-kondo"
+    },
+    "share_code": "",
+    "permissions": {
+      "camera": false,
+      "microphone": false,
+      "imu": false,
+      "network": false,
+      "additional_hardware": false,
+      "background_service": false,
+      "external_display": false
+    }
+  }
+}

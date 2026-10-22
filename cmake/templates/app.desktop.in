@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=KEY DASH
+Comment=@APP_PACKAGE_DESCRIPTION@
+Exec=/usr/bin/@PROJECT_NAME@
+Icon=share/images/key-dash.png
+Terminal=false
+Categories=Game;
+StartupNotify=false
