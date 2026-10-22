@@ -43,7 +43,7 @@ bool OnlineClient::start(std::string method, std::string path, std::string body,
         auto cleanup = std::unique_ptr<curl_slist, decltype(&curl_slist_free_all)>(headers, curl_slist_free_all);
         curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl.get(), CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl.get(), CURLOPT_USERAGENT, "KEY-DASH/0.3.0");
+        curl_easy_setopt(curl.get(), CURLOPT_USERAGENT, "M5CZT/0.3.1");
         curl_easy_setopt(curl.get(), CURLOPT_CONNECTTIMEOUT_MS, 4000L);
         curl_easy_setopt(curl.get(), CURLOPT_TIMEOUT_MS, 8000L);
         curl_easy_setopt(curl.get(), CURLOPT_NOSIGNAL, 1L);

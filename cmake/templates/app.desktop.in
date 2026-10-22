@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=KEY DASH
+Name=M5CZT
+Comment=M5 Cardputer Zero Typing
 Comment=@APP_PACKAGE_DESCRIPTION@
 Exec=/usr/bin/@PROJECT_NAME@
 Icon=share/images/key-dash.png

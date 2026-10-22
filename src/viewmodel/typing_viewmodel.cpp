@@ -68,6 +68,6 @@ void TypingViewModel::tick(uint64_t now) {
     if (state_.dirty() && now - last_save_ >= 1000) { last_save_ = now; save(); publish(); }
 }
 void TypingViewModel::save() {
-    if (state_.dirty() && !state_.save()) std::fprintf(stderr, "KEY DASH save: %s\n", state_.storage_error().c_str());
+    if (state_.dirty() && !state_.save()) std::fprintf(stderr, "M5CZT save: %s\n", state_.storage_error().c_str());
 }
 }

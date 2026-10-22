@@ -85,7 +85,7 @@ void TypingScreen::footer(const char* first, const char* second, const char* thi
 void TypingScreen::home() {
     const auto& state = typing_.state();
     rectangle(content_, 12, 9, 5, 10, accent_); rectangle(content_, 19, 9, 5, 5, accent_);
-    text(content_, 32, 6, "KEY DASH", &lv_font_montserrat_14, ink_);
+    text(content_, 32, 6, "M5CZT", &lv_font_montserrat_14, ink_);
     auto* pack = text(content_, 230, 8, model::TypingModel::pack_name(visible_pack_), &lv_font_montserrat_12, accent_);
     lv_obj_set_width(pack, 78); lv_obj_set_style_text_align(pack, LV_TEXT_ALIGN_RIGHT, 0);
     rectangle(content_, 12, 28, 296, 1, surface_);
@@ -159,7 +159,7 @@ void TypingScreen::online() {
     using viewmodel::OnlinePanel;
     const auto panel = typing_.online_panel();
     char buffer[100];
-    text(content_, 12, 7, "KEY DASH / ONLINE", &lv_font_montserrat_12, accent_);
+    text(content_, 12, 7, "M5CZT / ONLINE", &lv_font_montserrat_12, accent_);
     rectangle(content_, 12, 27, 296, 1, surface_);
     if (panel == OnlinePanel::Contact) {
         if (!typing_.contact_url().empty()) {
@@ -169,7 +169,7 @@ void TypingScreen::online() {
             lv_qrcode_set_dark_color(qr, lv_color_black()); lv_qrcode_set_light_color(qr, lv_color_white());
             const auto& url = typing_.contact_url();
             if (lv_qrcode_update(qr, url.data(), static_cast<uint32_t>(url.size())) != LV_RESULT_OK)
-                std::fprintf(stderr, "KEY DASH: contact QR generation failed\n");
+                std::fprintf(stderr, "M5CZT: contact QR generation failed\n");
         }
         text(content_, 132, 35, "Optional email", &lv_font_montserrat_16, ink_);
         text(content_, 132, 60, typing_.contact_url().empty() ? "Enter for a new QR" : "Scan on your phone", &lv_font_montserrat_12, muted_);

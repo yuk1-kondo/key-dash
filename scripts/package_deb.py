@@ -27,7 +27,8 @@ Description: A typing game with optional online rankings for CardputerZero
 '''
 desktop = '''[Desktop Entry]
 Type=Application
-Name=KEY DASH
+Name=M5CZT
+Comment=M5 Cardputer Zero Typing
 Exec=/usr/bin/key-dash
 Icon=share/images/key-dash.png
 Terminal=false
