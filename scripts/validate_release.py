@@ -26,6 +26,10 @@ with tarfile.open(fileobj=io.BytesIO(parts['data.tar.gz'])) as tar:
  assert 'Exec=/usr/bin/key-dash' in desktop and 'Terminal=false' in desktop
  assert './usr/share/APPLaunch/share/images/key-dash.png' in tar.getnames()
  assert not any('systemd' in name for name in tar.getnames()),'Unexpected background service'
+ for asset in ['stackchan-neutral.png','stackchan-happy.png']:
+  resource=tar.extractfile('./usr/share/key-dash/images/'+asset).read()
+  assert resource[:8]==b'\x89PNG\r\n\x1a\n',asset
+ assert './usr/share/doc/key-dash/STACKCHAN-CREDITS.md' in tar.getnames()
 for path in store['screenshots']:
  data=(root/path).read_bytes();assert data[:8]==b'\x89PNG\r\n\x1a\n' and struct.unpack('>II',data[16:24])==(320,170),path
 icon=(root/store['icon']).read_bytes();assert struct.unpack('>II',icon[16:24])==(256,256)

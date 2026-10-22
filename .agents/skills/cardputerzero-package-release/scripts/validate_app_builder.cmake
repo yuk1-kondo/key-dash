@@ -171,7 +171,8 @@ if(DEFINED PACKAGE_FILE AND NOT PACKAGE_FILE STREQUAL "")
         add_validation_error("Package file does not exist: ${PACKAGE_FILE}")
     else()
         get_filename_component(package_filename "${package_path}" NAME)
-        if(NOT package_filename MATCHES "_${manifest_version}_[^/]*_arm64\\.deb$")
+        string(REPLACE "." "\\." manifest_version_pattern "${manifest_version}")
+        if(NOT package_filename MATCHES "_${manifest_version_pattern}[-_][^/]*_arm64\\.deb$")
             add_validation_error(
                 "Package filename does not contain manifest version and arm64 architecture: ${package_filename}"
             )

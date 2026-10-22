@@ -33,6 +33,16 @@ The built-in desktop simulator also lets you click the physical keys on the Card
 - Timed rounds end at exactly 30 or 60 seconds. Late input cannot extend the round or increase the score. Untimed practice ends after ten correctly confirmed words.
 - Personal bests are independent for all three modes and both word packs. A cancelled round creates no record. Practice also records its own best, separately from timed sprints.
 
+## StackChan companion
+
+The mascot follows the appearance of the official M5Stack StackChan K151: white housing, black face, circular lower camera and grey base. A small neutral companion accompanies typing, with a larger happy expression on results. This is an independent game illustration, not an official M5Stack app. [Credits and references](assets/images/STACKCHAN-CREDITS.md).
+
+## Optional private contact email
+
+After registering a player name, select **5 Online → 6 Contact**. Scan the QR on a phone, or enter its code on the leaderboard site's **連絡先（任意）** form. Email registration is optional and does not affect scores or rank eligibility. The address is stored privately only after an explicit checkbox for competition/result contact. The administrator contacts players manually; email ownership verification and automatic email sending are outside this version.
+
+The QR contains a 10-minute, one-use contact code, never the player's private key. The site supports saving, replacing and deleting contact details with a fresh code. Deleting a contact preserves scores. The app never receives or stores the email address. The public leaderboard API never returns it. See [online/README.md](online/README.md) for retention and authorized administrator lookup.
+
 ## Online rankings
 
 The site is hosted on GitHub Pages; Cloudflare Worker + D1 handles public registration, challenges, server-side replay scoring and storage. GitHub login is not required for players. Boards are separate for 30/60 seconds and English/Code. See [online/README.md](online/README.md) for the API, limits, data retention and setup.
@@ -101,12 +111,12 @@ python3 scripts/package_deb.py
 python3 scripts/validate_release.py
 ```
 
-The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.2.0-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
+The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.3.0-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
 
 After copying the package to the device:
 
 ```sh
-sudo apt install ./key-dash_0.2.0-rev1_arm64.deb
+sudo apt install ./key-dash_0.3.0-rev1_arm64.deb
 ```
 
 APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display is `/dev/fb0`; the existing platform driver discovers evdev keyboards, with A–Z, digits, Space, Enter, Backspace and Tab mapping. Existing non-root access to the device nodes is required. Do not run as root.

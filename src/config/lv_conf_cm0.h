@@ -116,7 +116,7 @@
 #define LV_USE_LIBJPEG_TURBO               0
 #define LV_USE_TJPGD                       1
 
-#define LV_IMAGE_CACHE_DEF_SIZE            16
+#define LV_CACHE_DEF_SIZE                  (8U * 1024U * 1024U)
 
 /*====================
    THEMES

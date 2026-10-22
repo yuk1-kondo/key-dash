@@ -81,7 +81,11 @@ void TypingViewModel::submit_score() {
 }
 void TypingViewModel::online_key(uint32_t key, uint64_t) {
     if (panel_ == OnlinePanel::Busy) return;
-    if (key == LV_KEY_ESC) { panel_ = OnlinePanel::None; return; }
+    if (key == LV_KEY_ESC) { panel_ = panel_ == OnlinePanel::Contact ? OnlinePanel::Menu : OnlinePanel::None; return; }
+    if (panel_ == OnlinePanel::Contact) {
+        if (key == LV_KEY_ENTER || key == '6') request(Request::ContactLink, "POST", "/v1/contact-links", "{}");
+        return;
+    }
     if (panel_ == OnlinePanel::Name) {
         if (key == LV_KEY_BACKSPACE || key == LV_KEY_DEL) { if (!name_input_.empty()) name_input_.pop_back(); }
         else if (key == LV_KEY_ENTER) {
@@ -100,6 +104,10 @@ void TypingViewModel::online_key(uint32_t key, uint64_t) {
     if (key == '1' || key == '2') { online_duration_ = key == '1' ? 30 : 60; if (panel_ == OnlinePanel::Board) fetch_board(); }
     else if (key == LV_KEY_NEXT || key == LV_KEY_PREV) { state_.toggle_pack(); if (panel_ == OnlinePanel::Board) fetch_board(); }
     else if (key == '4') fetch_board();
+    else if (key == '6') {
+        if (player_token_.empty()) online_message_ = "Register a player name with Enter first.";
+        else request(Request::ContactLink, "POST", "/v1/contact-links", "{}");
+    }
     else if (key == LV_KEY_ENTER) {
         if (panel_ == OnlinePanel::Board) { panel_ = OnlinePanel::Menu; return; }
         if (player_token_.empty()) { panel_ = OnlinePanel::Name; online_message_ = "Public name. No GitHub login needed."; return; }
@@ -119,7 +127,16 @@ void TypingViewModel::online_poll(uint64_t now) {
             if (!valid_name(name) || !valid_token(token)) throw std::runtime_error("Invalid registration response");
             player_name_ = name; player_token_ = token; player_id_ = data.at("id").get<std::string>();
             panel_ = OnlinePanel::Menu;
-            online_message_ = save_player() ? "Registered. Enter to challenge!" : "Player key not saved. Check storage.";
+            online_message_ = save_player() ? "Registered. Enter: play / 6: contact" : "Player key not saved. Check storage.";
+        } else if (action == Request::ContactLink) {
+            const auto code = data.at("code").get<std::string>();
+            const std::string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            if (code.size() != 12 || code.find_first_not_of(alphabet) != std::string::npos || data.at("expires_in") != 600)
+                throw std::runtime_error("Invalid contact response");
+            contact_code_ = code.substr(0, 4) + "-" + code.substr(4, 4) + "-" + code.substr(8, 4);
+            contact_url_ = "https://yuk1-kondo.github.io/key-dash-ranking/#contact=" + code;
+            contact_until_ = now + 590000;
+            panel_ = OnlinePanel::Contact; online_message_ = "Private contact for event results.";
         } else if (action == Request::Challenge) {
             const auto seed = data.at("seed").get<uint32_t>();
             const auto id = data.at("id").get<std::string>();

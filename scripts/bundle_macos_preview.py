@@ -28,6 +28,8 @@ licenses=resources/'licenses';licenses.mkdir(exist_ok=True)
 for name,path in {
  'Template-MIT.txt':project/'LICENSE',
  'nlohmann-json.txt':project/'third_party/nlohmann/LICENSE.MIT',
+ 'qrcodegen.txt':project/'third_party/qrcodegen/LICENSE.txt',
+ 'StackChan-credits.md':project/'assets/images/STACKCHAN-CREDITS.md',
  'SDL2.txt':Path('/opt/homebrew/opt/sdl2/LICENSE.txt'),
  'fmt.txt':Path('/opt/homebrew/opt/fmt/LICENSE'),
  'FreeType.txt':Path('/opt/homebrew/opt/freetype/LICENSE.TXT'),

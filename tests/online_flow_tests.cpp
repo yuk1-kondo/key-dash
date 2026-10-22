@@ -50,5 +50,13 @@ int main() {
     bool found = false;
     for (const auto& row : vm.ranking()) if (row.name == name && row.wpm == wpm && row.accuracy == accuracy) found = true;
     assert(found);
+    vm.key('6', now()); pump(vm);
+    assert(vm.online_panel() == viewmodel::OnlinePanel::Contact);
+    assert(vm.contact_code().size() == 14);
+    assert(vm.contact_url().rfind("https://yuk1-kondo.github.io/key-dash-ranking/#contact=", 0) == 0);
+    vm.tick(now() + 600001);
+    assert(vm.contact_url().empty() && vm.contact_code().empty());
+    assert(vm.online_message().find("expired") != std::string::npos);
+    std::cout << "PASS: native private contact QR issuance and local expiry.\n";
     std::cout << "PASS: native registration -> deterministic challenge -> typo correction -> score upload -> D1 -> native leaderboard (" << wpm << " WPM / " << accuracy << "%).\n";
 }

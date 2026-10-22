@@ -4,7 +4,7 @@
 #include "online_client.h"
 #include <vector>
 namespace viewmodel {
-enum class OnlinePanel { None, Menu, Name, Board, Busy };
+enum class OnlinePanel { None, Menu, Name, Board, Contact, Busy };
 struct RankingRow { unsigned rank, wpm, accuracy; std::string name; };
 class TypingViewModel {
 public:
@@ -22,8 +22,10 @@ public:
     const std::vector<RankingRow>& ranking() const { return ranking_; }
     unsigned online_duration() const { return online_duration_; }
     bool online_round() const { return online_round_; }
+    const std::string& contact_code() const { return contact_code_; }
+    const std::string& contact_url() const { return contact_url_; }
 private:
-    enum class Request { None, Register, Challenge, Board, Submit };
+    enum class Request { None, Register, Challenge, Board, ContactLink, Submit };
     struct KeyEvent { uint64_t time; char key; };
     void publish();
     void online_key(uint32_t key, uint64_t now);
@@ -37,13 +39,13 @@ private:
     model::TypingModel state_;
     network::OnlineClient client_;
     reactive::IntSubject revision_{0};
-    uint64_t last_save_{0}, online_started_{0}, online_ready_{0};
+    uint64_t last_save_{0}, online_started_{0}, online_ready_{0}, contact_until_{0};
     bool quit_{false}, online_round_{false}, submitted_{false};
     OnlinePanel panel_{OnlinePanel::None};
     Request request_{Request::None};
     unsigned online_duration_{30};
     std::string player_name_, player_token_, player_id_, name_input_, run_id_, pending_score_;
-    std::string online_message_, registration_token_, registration_name_;
+    std::string online_message_, registration_token_, registration_name_, contact_code_, contact_url_;
     std::vector<RankingRow> ranking_;
     std::vector<KeyEvent> events_;
 };

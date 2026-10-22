@@ -1,5 +1,6 @@
 #include "typing_screen.h"
 #include "monotonic_clock.h"
+#include "asset_manager.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -13,6 +14,10 @@ bool is_game(model::TypingPage page) { return page == model::TypingPage::Ready |
 }
 TypingScreen::TypingScreen(viewmodel::BaseViewModel& shell, app::AssetManager& assets, viewmodel::TypingViewModel& typing)
     : BaseScreen(shell, assets, true), typing_(typing) {
+    const auto neutral = assets.resolve("images/stackchan-neutral.png");
+    const auto happy = assets.resolve("images/stackchan-happy.png");
+    if (!neutral.empty()) neutral_image_ = "A:" + neutral.string();
+    if (!happy.empty()) happy_image_ = "A:" + happy.string();
     init();
     observer_ = lv_subject_add_observer(typing_.revision_subject(), [](lv_observer_t* observer, lv_subject_t*) {
         auto* self = static_cast<TypingScreen*>(lv_observer_get_user_data(observer));
@@ -62,6 +67,15 @@ void TypingScreen::rebuild() {
         text(content_, 10, 134, "Save unavailable - check state.txt", &lv_font_montserrat_12, 0xffffff);
     }
 }
+void TypingScreen::stackchan(int x, int y, int width, int height, bool happy) {
+    const auto& source = happy ? happy_image_ : neutral_image_;
+    if (source.empty()) return;
+    auto* image = lv_image_create(content_);
+    lv_image_set_src(image, source.c_str());
+    lv_obj_set_pos(image, x, y); lv_obj_set_size(image, width, height);
+    lv_image_set_inner_align(image, LV_IMAGE_ALIGN_CONTAIN);
+    lv_image_set_antialias(image, true);
+}
 void TypingScreen::footer(const char* first, const char* second, const char* third) {
     rectangle(content_, 0, 149, 320, 21, surface_);
     text(content_, 10, 153, first, &lv_font_montserrat_12, ink_);
@@ -77,6 +91,7 @@ void TypingScreen::home() {
     rectangle(content_, 12, 28, 296, 1, surface_);
     text(content_, 12, 36, "tiny keys.", &lv_font_montserrat_28, ink_);
     text(content_, 13, 68, "quick fingers.", &lv_font_montserrat_20, accent_);
+    stackchan(244, 34, 64, 78);
     char buffer[80]; std::snprintf(buffer, sizeof(buffer), "Best %u WPM  /  %s", state.best_wpm(), model::TypingModel::mode_name(visible_mode_));
     text(content_, 14, 94, buffer, &lv_font_montserrat_12, muted_);
     constexpr const char* modes[] = {"1  30s", "2  60s", "3  Practice"};
@@ -100,9 +115,10 @@ void TypingScreen::game() {
         tiles_[index] = rectangle(content_, 0, 62, 25, 34, background_, 3);
         letters_[index] = text(tiles_[index], 0, 0, "", &lv_font_montserrat_28, muted_);
     }
+    stackchan(260, 56, 52, 68);
     cursor_ = rectangle(content_, 0, 96, 21, 2, accent_);
     typed_ = text(content_, 12, 104, "", &lv_font_montserrat_12, muted_);
-    lv_obj_set_width(typed_, 296); lv_obj_set_style_text_align(typed_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_width(typed_, 240); lv_obj_set_style_text_align(typed_, LV_TEXT_ALIGN_CENTER, 0);
     words_ = text(content_, 12, 127, "0 words", &lv_font_montserrat_12, muted_);
     accuracy_ = text(content_, 175, 127, "100% accuracy", &lv_font_montserrat_12, muted_);
     lv_obj_set_width(accuracy_, 133); lv_obj_set_style_text_align(accuracy_, LV_TEXT_ALIGN_RIGHT, 0);
@@ -112,18 +128,21 @@ void TypingScreen::results() {
     const auto& state = typing_.state();
     text(content_, 12, 8, state.new_best() ? "NEW PERSONAL BEST" : "ROUND COMPLETE", &lv_font_montserrat_12, accent_);
     rectangle(content_, 12, 29, 296, 1, surface_);
+    auto* pack = text(content_, 230, 8, model::TypingModel::pack_name(visible_pack_), &lv_font_montserrat_12, muted_);
+    lv_obj_set_width(pack, 78); lv_obj_set_style_text_align(pack, LV_TEXT_ALIGN_RIGHT, 0);
+    stackchan(8, 30, 112, 100, true);
     char buffer[96]; std::snprintf(buffer, sizeof(buffer), "%u", state.wpm(0));
-    text(content_, 12, 39, buffer, &lv_font_montserrat_36, ink_);
-    text(content_, 14, 81, "WPM", &lv_font_montserrat_12, muted_);
+    text(content_, 132, 36, buffer, &lv_font_montserrat_36, ink_);
+    text(content_, 225, 57, "WPM", &lv_font_montserrat_12, muted_);
     std::snprintf(buffer, sizeof(buffer), "%u%%", state.accuracy());
-    text(content_, 187, 44, buffer, &lv_font_montserrat_28, ink_);
-    text(content_, 190, 81, "ACCURACY", &lv_font_montserrat_12, muted_);
-    std::snprintf(buffer, sizeof(buffer), "%u %s  /  %llus  /  %s", state.completed_words(), state.completed_words() == 1 ? "word" : "words",
-        static_cast<unsigned long long>(state.elapsed_ms(0) / 1000), model::TypingModel::pack_name(visible_pack_));
-    text(content_, 14, 106, buffer, &lv_font_montserrat_12, muted_);
+    text(content_, 136, 80, buffer, &lv_font_montserrat_20, ink_);
+    text(content_, 199, 85, "accuracy", &lv_font_montserrat_12, muted_);
+    std::snprintf(buffer, sizeof(buffer), "%u words / %llus", state.completed_words(),
+        static_cast<unsigned long long>(state.elapsed_ms(0) / 1000));
+    text(content_, 136, 108, buffer, &lv_font_montserrat_12, muted_);
     std::snprintf(buffer, sizeof(buffer), "Personal best: %u WPM", state.best_wpm());
-    auto* status = text(content_, 14, 123, typing_.online_round() ? typing_.online_message().c_str() : buffer, &lv_font_montserrat_12, accent_);
-    lv_obj_set_size(status, 294, 25); lv_label_set_long_mode(status, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    auto* status = text(content_, 12, 130, typing_.online_round() ? typing_.online_message().c_str() : buffer, &lv_font_montserrat_12, accent_);
+    lv_obj_set_size(status, 296, 16); lv_label_set_long_mode(status, LV_LABEL_LONG_SCROLL_CIRCULAR);
     footer("Enter Again", "Esc Menu", typing_.online_round() ? "4 Rankings" : "0 Theme");
 }
 void TypingScreen::help() {
@@ -142,7 +161,24 @@ void TypingScreen::online() {
     char buffer[100];
     text(content_, 12, 7, "KEY DASH / ONLINE", &lv_font_montserrat_12, accent_);
     rectangle(content_, 12, 27, 296, 1, surface_);
-    if (panel == OnlinePanel::Name) {
+    if (panel == OnlinePanel::Contact) {
+        if (!typing_.contact_url().empty()) {
+            auto* qr = lv_qrcode_create(content_);
+            lv_obj_set_pos(qr, 10, 31); lv_qrcode_set_size(qr, 112);
+            lv_qrcode_set_quiet_zone(qr, true);
+            lv_qrcode_set_dark_color(qr, lv_color_black()); lv_qrcode_set_light_color(qr, lv_color_white());
+            const auto& url = typing_.contact_url();
+            if (lv_qrcode_update(qr, url.data(), static_cast<uint32_t>(url.size())) != LV_RESULT_OK)
+                std::fprintf(stderr, "KEY DASH: contact QR generation failed\n");
+        }
+        text(content_, 132, 35, "Optional email", &lv_font_montserrat_16, ink_);
+        text(content_, 132, 60, typing_.contact_url().empty() ? "Enter for a new QR" : "Scan on your phone", &lv_font_montserrat_12, muted_);
+        text(content_, 132, 80, typing_.contact_code().c_str(), &lv_font_montserrat_12, accent_);
+        text(content_, 132, 103, typing_.contact_url().empty() ? "Code expired" : "Valid for 10 minutes", &lv_font_montserrat_12, muted_);
+        text(content_, 132, 123, "Save / change / delete", &lv_font_montserrat_12, muted_);
+        footer("Enter New QR", "Private", "Esc Back");
+        return;
+    } else if (panel == OnlinePanel::Name) {
         text(content_, 12, 36, "Choose your player name", &lv_font_montserrat_16, ink_);
         rectangle(content_, 12, 63, 296, 31, surface_, 4);
         std::snprintf(buffer, sizeof(buffer), "%s_", typing_.name_input().c_str());
@@ -172,7 +208,8 @@ void TypingScreen::online() {
         text(content_, 12, 37, buffer, &lv_font_montserrat_14, ink_);
         std::snprintf(buffer, sizeof(buffer), "%us / %s", typing_.online_duration(), model::TypingModel::pack_name(visible_pack_));
         text(content_, 12, 62, buffer, &lv_font_montserrat_20, accent_);
-        text(content_, 12, 94, "1 30s / 2 60s   Tab: words", &lv_font_montserrat_12, muted_);
+        text(content_, 12, 91, "1 30s / 2 60s   Tab: words", &lv_font_montserrat_12, muted_);
+        text(content_, 12, 108, "6 Optional contact email", &lv_font_montserrat_12, muted_);
         footer("Enter Start", "4 Rankings", "Esc Back");
     }
     auto* status = text(content_, 12, 124, typing_.online_message().c_str(), &lv_font_montserrat_12, muted_);
@@ -193,7 +230,7 @@ void TypingScreen::refresh(uint64_t now) {
     std::snprintf(buffer, sizeof(buffer), "%u %s", state.completed_words(), state.completed_words() == 1 ? "word" : "words"); set_text(words_, buffer);
     std::snprintf(buffer, sizeof(buffer), "%u%% accuracy", state.accuracy()); set_text(accuracy_, buffer);
     const auto& word = state.word(); const auto& input = state.input();
-    const int left = (320 - static_cast<int>(word.size()) * 26) / 2;
+    const int left = (252 - static_cast<int>(word.size()) * 26) / 2;
     for (unsigned index = 0; index < tiles_.size(); ++index) {
         const bool visible = index < word.size(); show(tiles_[index], visible);
         if (!visible) continue;

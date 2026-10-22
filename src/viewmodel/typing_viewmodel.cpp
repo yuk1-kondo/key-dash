@@ -30,7 +30,7 @@ void TypingViewModel::key(uint32_t key, uint64_t now) {
         }
     } else if (page == TypingPage::Results) {
         if (key == LV_KEY_ENTER || key == '1') {
-            if (online_round_) { panel_ = OnlinePanel::Menu; online_message_ = "Enter to start a new online round."; }
+            if (online_round_) { state_.back(); online_round_ = false; pending_score_.clear(); panel_ = OnlinePanel::Menu; online_message_ = "Enter to start a new online round."; }
             else state_.prepare(state_.records().selected_mode, now);
         } else if (key == '5' && online_round_) submit_score();
         else if (key == '4' && online_round_) { state_.back(); online_round_ = false; fetch_board(); }
@@ -56,6 +56,10 @@ void TypingViewModel::key(uint32_t key, uint64_t now) {
 }
 void TypingViewModel::tick(uint64_t now) {
     online_poll(now);
+    if (panel_ == OnlinePanel::Contact && contact_until_ && now >= contact_until_) {
+        contact_until_ = 0; contact_code_.clear(); contact_url_.clear();
+        online_message_ = "Code expired. Enter for a new QR."; publish();
+    }
     if (online_round_ && state_.page() == model::TypingPage::Ready && now - online_ready_ > 8 * 60000) {
         state_.back(); online_round_ = false; panel_ = OnlinePanel::Menu;
         online_message_ = "Challenge expired. Enter to restart."; publish();

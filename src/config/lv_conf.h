@@ -7,4 +7,6 @@
 #include "lv_conf_cm0.h"
 #endif
 
+#define LV_USE_QRCODE 1
+
 #endif // LV_CONF_H

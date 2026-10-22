@@ -66,6 +66,10 @@ if(APP_INSTALL_SYSTEMD_SERVICE)
     )
 endif()
 
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/third_party/qrcodegen/LICENSE.txt"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+    RENAME "qrcodegen-license.txt"
+)
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}"
     RENAME "nlohmann-json-license.txt"

@@ -76,6 +76,7 @@ public:
     explicit SmokeRun(const char* output) : output_(output ? output : "") {}
     bool update(viewmodel::TypingViewModel& vm, uint64_t now) {
         if (output_.empty()) return false;
+        if (std::getenv("KEY_DASH_CONTACT_QR_SMOKE")) return contact_update(vm, now);
         if (!started_) { started_ = now; return false; }
         const auto elapsed = now - started_;
         if (stage_ == 0 && elapsed >= 250) {
@@ -114,6 +115,19 @@ public:
     }
     bool failed() const { return failed_; }
 private:
+    bool contact_update(viewmodel::TypingViewModel& vm, uint64_t now) {
+        const char* endpoint = std::getenv("KEY_DASH_API_URL");
+        if (!endpoint || std::string(endpoint).rfind("http://127.0.0.1:", 0) != 0 || !std::getenv("KEY_DASH_STATE_DIR")) {
+            std::fprintf(stderr, "Contact rendering smoke requires a local API.\n"); failed_ = true; return true;
+        }
+        if (!started_) { started_ = now; return false; }
+        if (stage_ == 0 && now - started_ >= 250) { vm.key('5', now); vm.key('6', now); stage_ = 1; }
+        else if (stage_ == 1 && vm.online_panel() == viewmodel::OnlinePanel::Contact) {
+            capture("contact-qr.png"); vm.tick(now + 600001); capture("contact-expired.png"); return true;
+        }
+        if (now - started_ > 12000) { failed_ = true; std::fprintf(stderr, "Contact render timed out.\n"); return true; }
+        return false;
+    }
     void capture(const char* name) {
         lv_refr_now(nullptr);
         const auto result = platform::screenshot::capture_to(output_ / name);

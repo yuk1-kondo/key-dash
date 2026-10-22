@@ -46,9 +46,13 @@ files=[('usr/bin/key-dash',binary,0o755),
  ('usr/share/APPLaunch/share/images/key-dash.png',(root/'assets/images/key-dash.png').read_bytes(),0o644),
  ('usr/share/doc/key-dash/README.md',(root/'README.md').read_bytes(),0o644),
  ('usr/share/doc/key-dash/LICENSE',(root/'LICENSE').read_bytes(),0o644)]
+for image in ['stackchan-neutral.png','stackchan-happy.png']:
+ files.append((f'usr/share/key-dash/images/{image}',(root/'assets/images'/image).read_bytes(),0o644))
+files.append(('usr/share/doc/key-dash/STACKCHAN-CREDITS.md',(root/'assets/images/STACKCHAN-CREDITS.md').read_bytes(),0o644))
 for label,path in [
  ('lvgl',root/'.cache/cp0-deps/lvgl-src/LICENCE.txt'),
  ('nlohmann-json',root/'third_party/nlohmann/LICENSE.MIT'),
+ ('qrcodegen',root/'third_party/qrcodegen/LICENSE.txt'),
  ('fmt',root/'.cache/cp0-deps/fmt-src/LICENSE.rst'),
  ('thorvg',root/'.cache/cp0-deps/lvgl-src/src/libs/thorvg/LICENSE.txt')]:
  if path.exists(): files.append((f'usr/share/doc/key-dash/licenses/{label}.txt',path.read_bytes(),0o644))
