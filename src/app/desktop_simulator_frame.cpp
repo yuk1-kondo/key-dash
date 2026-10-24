@@ -126,7 +126,7 @@ bool DesktopSimulatorFrame::initialize_sdl() {
         return false;
     }
 
-    window_ = SDL_CreateWindow("M5CZT",
+    window_ = SDL_CreateWindow("taM5CZTyping",
                                SDL_WINDOWPOS_CENTERED,
                                SDL_WINDOWPOS_CENTERED,
                                kWidth,

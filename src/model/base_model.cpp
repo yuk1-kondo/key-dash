@@ -9,7 +9,7 @@
 namespace model {
 
 const char* BaseModel::app_title() const {
-    return "M5CZT";
+    return "taM5CZTyping";
 }
 
 const char* BaseModel::greeting() const {

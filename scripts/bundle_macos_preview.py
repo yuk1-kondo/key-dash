@@ -2,12 +2,12 @@ from pathlib import Path
 import shutil, plistlib, subprocess, tempfile, os, zipfile, json
 project=Path(__file__).resolve().parents[1];root=project
 (project/'dist').mkdir(exist_ok=True)
-app=Path(tempfile.mkdtemp(prefix='key-dash-preview-',dir='/private/tmp'))/'M5CZT.app'
+app=Path(tempfile.mkdtemp(prefix='key-dash-preview-',dir='/private/tmp'))/'taM5CZTyping.app'
 mac=app/'Contents/MacOS';resources=app/'Contents/Resources';frameworks=app/'Contents/Frameworks'
 for p in (mac,resources,frameworks):p.mkdir(parents=True,exist_ok=True)
 main=mac/'key-dash';shutil.copy2(project/'build/darwin-arm64/Debug/key-dash',main)
 shutil.copytree(project/'assets',resources/'assets',dirs_exist_ok=True)
-plist={'CFBundleExecutable':'key-dash','CFBundleName':'M5CZT','CFBundleDisplayName':'M5CZT','CFBundleIdentifier':'local.key-dash.preview','CFBundleVersion':'1','CFBundleShortVersionString':json.loads((project/'app-builder.json').read_text())['version'],'CFBundlePackageType':'APPL','NSHighResolutionCapable':True,'LSMinimumSystemVersion':'13.0'}
+plist={'CFBundleExecutable':'key-dash','CFBundleName':'taM5CZTyping','CFBundleDisplayName':'taM5CZTyping','CFBundleIdentifier':'local.key-dash.preview','CFBundleVersion':'1','CFBundleShortVersionString':json.loads((project/'app-builder.json').read_text())['version'],'CFBundlePackageType':'APPL','NSHighResolutionCapable':True,'LSMinimumSystemVersion':'13.0'}
 (app/'Contents/Info.plist').write_bytes(plistlib.dumps(plist))
 queue=[(main,main)];seen=set();dependencies=[]
 while queue:
@@ -44,7 +44,7 @@ for file in app.rglob('*'):
 subprocess.run(['xattr','-cr',str(app)],check=True,capture_output=True)
 subprocess.run(['codesign','--force','--deep','--sign','-',str(app)],check=True,capture_output=True)
 subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True,capture_output=True)
-output=project/'dist/M5CZT-macOS-preview.zip'
+output=project/'dist/taM5CZTyping-macOS-preview.zip'
 with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED) as archive:
  for file in sorted(app.rglob('*')):
   if file.is_file():archive.write(file,file.relative_to(app.parent))

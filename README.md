@@ -1,10 +1,10 @@
-# M5 Cardputer Zero Typing (M5CZT)
+# tataM5CZTypingyping
 
 **Small keys. Quick fingers.**
 
 Rules 2 (v0.4.1): wrong letters count as misses and never advance the cursor. Type the expected letter to continue. The final correct letter automatically starts the next word; no Enter/Space confirmation is needed. Backspace undoes accepted text. Live and result screens show misses. WPM counts actual accepted letters only (five characters per standard word). Legacy local bests and online rankings are retained separately. A pocket typing game for the CardputerZero keyboard.
 
-![M5CZT](screenshot/game.png)
+![taM5CZTyping](screenshot/game.png)
 
 C++17 / LVGL 9.5. Based on the MIT-licensed CardputerZero Template and the local KEY CRITTER display, keyboard, packaging and screenshot infrastructure. Offline play works without a connection. Optional online challenges use a public player name and a private per-player key. No root execution, external hardware, or background service.
 
@@ -113,12 +113,12 @@ python3 scripts/package_deb.py
 python3 scripts/validate_release.py
 ```
 
-The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.4.1-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
+The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.4.2-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
 
 After copying the package to the device:
 
 ```sh
-sudo apt install ./key-dash_0.4.1-rev1_arm64.deb
+sudo apt install ./key-dash_0.4.2-rev1_arm64.deb
 ```
 
 APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display is `/dev/fb0`; the existing platform driver discovers evdev keyboards, with A–Z, digits, Space, Enter, Backspace and Tab mapping. Existing non-root access to the device nodes is required. Do not run as root.

@@ -1,15 +1,15 @@
-# M5CZT Store 提出内容
+# taM5CZTyping Store 提出内容
 
-- 正式名: M5 Cardputer Zero Typing
-- 略称: M5CZT
+- 正式名: tataM5CZTypingyping
+- 略称: taM5CZTyping
 - パッケージ: key-dash
-- バージョン: 0.4.1-rev1 / arm64
+- バージョン: 0.4.2-rev1 / arm64
 - 共有コード: M5ZT（事前検索では未使用。提出先CIが一意性を最終検証）
 - カテゴリ: Games / Education
 - 作者: yuk1-kondo
 - ライセンス: MIT
 - 権限: networkのみtrue。他の6項目false。
-- 提出予定: key-dash_0.4.1-rev1_arm64.deb
+- 提出予定: key-dash_0.4.2-rev1_arm64.deb
 - ネット接続先: https://key-dash-ranking.yukilab-m.workers.dev
 - ランキング: https://yuk1-kondo.github.io/key-dash-ranking/
 
@@ -23,7 +23,7 @@ M5Stack公式StackChan K151を参考にした独自イラストを使用する�
 
 ## 実機動画の撮影内容（約45〜60秒）
 
-1. 本体ランチャーからM5CZTを起動。
+1. 本体ランチャーからtaM5CZTypingを起動。
 2. オフライン30秒を開始。わざと1回間違え、位置が進まずミス数が増えることを見せる。
 3. 正しい文字を続けて入力し、Enterなしで次の単語へ進むことを見せる。
 4. 結果のWPM・正確率・ミス数を見せる。
@@ -41,4 +41,8 @@ M5Stack公式StackChan K151を参考にした独自イラストを使用する�
 
 ## 実機デモ録画済み
 
-`artifacts/M5CZT-Store-demo.mp4`（67秒）はUSB ADB経由で実機のframebufferを録画し、起動・オフラインCode30秒のプレイ・結果・終了の順へ編集した動画です。960×510へ整数倍拡大。シミュレーターではありません。実機の外観やキー操作を撮影したカメラ映像ではありません。0ミスのプレイのため、ミス加算の実演は含みません。
+`artifacts/taM5CZTyping-Store-demo.mp4`（67秒）はUSB ADB経由で実機のframebufferを録画し、起動・オフラインCode30秒のプレイ・結果・終了の順へ編集した動画です。960×510へ整数倍拡大。シミュレーターではありません。実機の外観やキー操作を撮影したカメラ映像ではありません。0ミスのプレイのため、ミス加算の実演は含みません。
+
+## 名称変更
+
+ユーザー指定により表示名をtaM5CZTypingへ変更。内部パッケージ名key-dash、共有コードM5ZTとランキングデータは維持。旧版の実機動画は旧名M5CZTで撮影したものです。

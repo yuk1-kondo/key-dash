@@ -1,8 +1,8 @@
-# M5CZTのキーと下部表示
+# taM5CZTypingのキーと下部表示
 
 公式の [入力システムとキー割り当て](https://github.com/CardputerZero/launcher/blob/master/docs/launcher-project-guide-ja/07-input-system-and-key-mapping.md) と [cp0_lvgl日本語リファレンス](https://github.com/CardputerZero/launcher/blob/master/docs/cp0_lvgl.ja.md)、[ページ基底クラス](https://github.com/CardputerZero/launcher/blob/master/ext_components/cp0_lvgl/include/ui_app_page.hpp) を参照しました。
 
-標準の `AppPageWithBottomBarLayout` は下部バー領域を提供します。領域を作るだけでゲームのキー操作が自動的に割り当てられるわけではなく、各アプリがイベントと表示を実装します。M5CZTの画面下部も、タッチボタンではなくキー操作や状態の案内です。
+標準の `AppPageWithBottomBarLayout` は下部バー領域を提供します。領域を作るだけでゲームのキー操作が自動的に割り当てられるわけではなく、各アプリがイベントと表示を実装します。taM5CZTypingの画面下部も、タッチボタンではなくキー操作や状態の案内です。
 
 |画面|表示とキー|動作|
 |---|---|---|
@@ -16,6 +16,6 @@
 
 誤字は入力位置を進めず、毎回ミス数を1加算します。Backspaceで誤字を消す必要はありません。Enterはプレイ中無効、Spaceはプレイ中の誤入力としてカウントします。開始前のEnter/Spaceはタイマーを開始しません。ミス数はラウンド単位、正確率は正しい文字の入力回数÷総文字入力回数です。Backspace自体やEscはミスに含めず、取り消した正しい文字を再入力してもWPMは増えません。
 
-公式ランチャーのF/X/Z/C方向操作はメニュー等の慣例です。M5CZTのタイピング中はF/X/Z/Cを文字として扱います。Escで前の画面へ戻る操作と、キーリピートで文字が重複しない処理を維持しています。
+公式ランチャーのF/X/Z/C方向操作はメニュー等の慣例です。taM5CZTypingのタイピング中はF/X/Z/Cを文字として扱います。Escで前の画面へ戻る操作と、キーリピートで文字が重複しない処理を維持しています。
 
 オンラインはEnglish・30秒に固定です。オンラインメニューでは1/2/Tabで変更できません。ホームから開始するオフラインの60秒・Code・Practiceは引き続き選べます。
