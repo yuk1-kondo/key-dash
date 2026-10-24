@@ -25,6 +25,10 @@ int main(){
   vm.key(LV_KEY_ESC,32000);vm.key(LV_KEY_NEXT,33000);require(vm.state().records().selected_pack==model::WordPack::Code,"tab changes word pack in menu");
   vm.key('4',34000);require(vm.state().page()==model::TypingPage::Help,"help opens");
   vm.key(LV_KEY_ESC,35000);require(vm.state().page()==model::TypingPage::Home,"help closes");
+  vm.key('5',35500);require(vm.online_panel()==viewmodel::OnlinePanel::Menu,"online menu opens");
+  vm.key('2',35510);vm.key(LV_KEY_NEXT,35520);
+  require(vm.online_duration()==30 && vm.state().records().selected_pack==model::WordPack::Code,"online selectors are disabled without changing offline vocabulary");
+  vm.key(LV_KEY_ESC,35530);
   vm.key(LV_KEY_ESC,36000);require(vm.quit_requested(),"escape exits from menu");
   std::filesystem::remove_all(directory);std::cout<<"PASS: keyboard routing, correction, theme isolation, exact-deadline Escape, saving, menu, help and exit\n";
  }catch(const std::exception& error){std::filesystem::remove_all(directory);std::cerr<<error.what()<<'\n';return 1;}

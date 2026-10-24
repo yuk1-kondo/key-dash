@@ -20,7 +20,7 @@ public:
     const std::string& player_name() const { return player_name_; }
     const std::string& name_input() const { return name_input_; }
     const std::vector<RankingRow>& ranking() const { return ranking_; }
-    unsigned online_duration() const { return online_duration_; }
+    unsigned online_duration() const { return 30; }
     bool online_round() const { return online_round_; }
     const std::string& contact_code() const { return contact_code_; }
     const std::string& contact_url() const { return contact_url_; }
@@ -43,7 +43,6 @@ private:
     bool quit_{false}, online_round_{false}, submitted_{false};
     OnlinePanel panel_{OnlinePanel::None};
     Request request_{Request::None};
-    unsigned online_duration_{30};
     std::string player_name_, player_token_, player_id_, name_input_, run_id_, pending_score_;
     std::string online_message_, registration_token_, registration_name_, contact_code_, contact_url_;
     std::vector<RankingRow> ranking_;

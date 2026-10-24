@@ -21,6 +21,7 @@ int main() {
     }
     lv_init(); viewmodel::TypingViewModel vm;
     const auto name = "qa" + std::to_string(now() % 1000000000);
+    vm.key(LV_KEY_NEXT, now()); assert(vm.state().records().selected_pack == model::WordPack::Code);
     vm.key('5', now()); assert(vm.online_panel() == viewmodel::OnlinePanel::Menu);
     vm.key(LV_KEY_ENTER, now()); assert(vm.online_panel() == viewmodel::OnlinePanel::Name);
     for (char ch : name) vm.key(ch, now());
@@ -29,7 +30,9 @@ int main() {
     const auto identity = std::filesystem::path(std::getenv("KEY_DASH_STATE_DIR")) / "online-player.json";
     assert(std::filesystem::exists(identity));
     assert((std::filesystem::status(identity).permissions() & std::filesystem::perms::others_read) == std::filesystem::perms::none);
+    vm.key('2', now()); vm.key(LV_KEY_NEXT, now());
     vm.key(LV_KEY_ENTER, now()); pump(vm);
+    assert(vm.state().records().selected_pack == model::WordPack::English && vm.state().limit_ms() == 30000);
     assert(vm.state().page() == model::TypingPage::Ready && vm.online_round());
     vm.key(LV_KEY_ENTER, now()); assert(vm.state().page() == model::TypingPage::Ready);
     const auto started = now();

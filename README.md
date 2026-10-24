@@ -2,7 +2,7 @@
 
 **Small keys. Quick fingers.**
 
-Rules 2 (v0.4.0): wrong letters count as misses and never advance the cursor. Type the expected letter to continue. The final correct letter automatically starts the next word; no Enter/Space confirmation is needed. Backspace undoes accepted text. Live and result screens show misses. WPM counts actual accepted letters only (five characters per standard word). Legacy local bests and online rankings are retained separately. A pocket typing game for the CardputerZero keyboard.
+Rules 2 (v0.4.1): wrong letters count as misses and never advance the cursor. Type the expected letter to continue. The final correct letter automatically starts the next word; no Enter/Space confirmation is needed. Backspace undoes accepted text. Live and result screens show misses. WPM counts actual accepted letters only (five characters per standard word). Legacy local bests and online rankings are retained separately. A pocket typing game for the CardputerZero keyboard.
 
 ![M5CZT](screenshot/game.png)
 
@@ -18,7 +18,7 @@ Public leaderboard: https://yuk1-kondo.github.io/key-dash-ranking/
 - **Tab**: English / Code vocabulary (64 short words in each).
 - **0**: paper / night theme, from the menu or results.
 - **4 / hardware Help**: controls, from the menu.
-- **5**: online challenge and leaderboards. Enter registers a player name, then starts a challenge; 1/2 chooses 30/60 seconds, Tab chooses words, 4 opens the top five. Name and score are public. Wi-Fi is required.
+- **5**: online challenge and leaderboards. Enter registers a player name, then starts an English-only 30-second challenge; 4 opens the top five. Name and score are public. Wi-Fi is required.
 - Online results upload automatically; **5** retries a failed upload with the same challenge. Scores need at least one completed word. **4** opens rankings from online results.
 - **Enter**: replay the selected mode.
 - **Esc**: return to the menu; from the menu, save and quit.
@@ -47,7 +47,7 @@ The QR contains a 10-minute, one-use contact code, never the player's private ke
 
 ## Online rankings
 
-The site is hosted on GitHub Pages; Cloudflare Worker + D1 handles public registration, challenges, server-side replay scoring and storage. GitHub login is not required for players. Boards are separate for 30/60 seconds and English/Code. See [online/README.md](online/README.md) for the API, limits, data retention and setup.
+The site is hosted on GitHub Pages; Cloudflare Worker + D1 handles public registration, challenges, server-side replay scoring and storage. GitHub login is not required for players. Online play has one division: English / 30 seconds. Previous divisions remain readable in the website archive. See [online/README.md](online/README.md) for the API, limits, data retention and setup.
 
 Only selecting Online makes network requests. Normal play is local. Registration uses a public 3–12 character ASCII name; a random personal key is stored as `online-player.json` beside the save with owner-only file permissions. Keep a private backup when changing devices; there is no password-recovery flow. Do not share that file or put it in GitHub Issues.
 
@@ -113,12 +113,12 @@ python3 scripts/package_deb.py
 python3 scripts/validate_release.py
 ```
 
-The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.4.0-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
+The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.4.1-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
 
 After copying the package to the device:
 
 ```sh
-sudo apt install ./key-dash_0.4.0-rev1_arm64.deb
+sudo apt install ./key-dash_0.4.1-rev1_arm64.deb
 ```
 
 APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display is `/dev/fb0`; the existing platform driver discovers evdev keyboards, with A–Z, digits, Space, Enter, Backspace and Tab mapping. Existing non-root access to the device nodes is required. Do not run as root.

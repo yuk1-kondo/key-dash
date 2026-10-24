@@ -25,8 +25,7 @@ void TypingViewModel::key(uint32_t key, uint64_t now) {
         else if (key == '4') state_.help();
         else if (key == '5') {
             panel_ = OnlinePanel::Menu;
-            online_duration_ = state_.records().selected_mode == TypingMode::Sprint60 ? 60 : 30;
-            online_message_ = "Name & score public. Wi-Fi required.";
+            online_message_ = "English / 30s only. Wi-Fi required.";
         }
     } else if (page == TypingPage::Results) {
         if (key == LV_KEY_ENTER || key == '1') {

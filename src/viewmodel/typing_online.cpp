@@ -26,7 +26,6 @@ std::string random_player_key() {
 bool valid_token(const std::string& token) {
     return token.size() == 64 && std::all_of(token.begin(), token.end(), [](char ch) { return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'); });
 }
-const char* pack_name(model::WordPack pack) { return pack == model::WordPack::Code ? "code" : "english"; }
 }
 void TypingViewModel::load_player() {
     std::ifstream file(player_path());
@@ -64,7 +63,7 @@ bool TypingViewModel::request(Request action, const std::string& method, const s
     return true;
 }
 void TypingViewModel::fetch_board() {
-    const std::string query = "/v1/leaderboard?mode=" + std::to_string(online_duration_) + "&pack=" + pack_name(state_.records().selected_pack);
+    const std::string query = "/v1/leaderboard?mode=30&pack=english&rules=2";
     request(Request::Board, "GET", query);
 }
 void TypingViewModel::finish_online() {
@@ -101,9 +100,7 @@ void TypingViewModel::online_key(uint32_t key, uint64_t) {
         } else if (name_input_.size() < 12 && ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') || key == '_' || key == '-')) name_input_.push_back(static_cast<char>(key));
         return;
     }
-    if (key == '1' || key == '2') { online_duration_ = key == '1' ? 30 : 60; if (panel_ == OnlinePanel::Board) fetch_board(); }
-    else if (key == LV_KEY_NEXT || key == LV_KEY_PREV) { state_.toggle_pack(); if (panel_ == OnlinePanel::Board) fetch_board(); }
-    else if (key == '4') fetch_board();
+    if (key == '4') fetch_board();
     else if (key == '6') {
         if (player_token_.empty()) online_message_ = "Register a player name with Enter first.";
         else request(Request::ContactLink, "POST", "/v1/contact-links", "{}");
@@ -111,7 +108,7 @@ void TypingViewModel::online_key(uint32_t key, uint64_t) {
     else if (key == LV_KEY_ENTER) {
         if (panel_ == OnlinePanel::Board) { panel_ = OnlinePanel::Menu; return; }
         if (player_token_.empty()) { panel_ = OnlinePanel::Name; online_message_ = "Public name. No GitHub login needed."; return; }
-        request(Request::Challenge, "POST", "/v1/runs", Json{{"mode", online_duration_}, {"pack", pack_name(state_.records().selected_pack)}, {"rules", 2}}.dump());
+        request(Request::Challenge, "POST", "/v1/runs", Json{{"mode", 30}, {"pack", "english"}, {"rules", 2}}.dump());
     }
 }
 void TypingViewModel::online_poll(uint64_t now) {
@@ -140,12 +137,13 @@ void TypingViewModel::online_poll(uint64_t now) {
         } else if (action == Request::Challenge) {
             const auto seed = data.at("seed").get<uint32_t>();
             const auto id = data.at("id").get<std::string>();
-            if (data.at("rules") != 2 || data.at("mode") != online_duration_ || data.at("pack") != pack_name(state_.records().selected_pack) || !seed || id.size() != 36 || id.find_first_not_of("0123456789abcdef-") != std::string::npos) throw std::runtime_error("Invalid challenge response");
+            if (data.at("rules") != 2 || data.at("mode") != 30 || data.at("pack") != "english" || !seed || id.size() != 36 || id.find_first_not_of("0123456789abcdef-") != std::string::npos) throw std::runtime_error("Invalid challenge response");
             run_id_ = id; events_.clear(); pending_score_.clear(); submitted_ = false;
             online_round_ = true; online_started_ = 0; online_ready_ = now;
-            state_.prepare_online(online_duration_ == 60 ? model::TypingMode::Sprint60 : model::TypingMode::Sprint30, state_.records().selected_pack, seed, now);
+            state_.prepare_online(model::TypingMode::Sprint30, model::WordPack::English, seed, now);
             panel_ = OnlinePanel::None; online_message_ = "ONLINE CHALLENGE";
         } else if (action == Request::Board) {
+            if (data.at("mode") != 30 || data.at("pack") != "english" || data.at("rules") != 2) throw std::runtime_error("Invalid ranking division");
             ranking_.clear();
             for (const auto& row : data.at("scores")) {
                 if (ranking_.size() == 5) break;

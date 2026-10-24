@@ -189,7 +189,7 @@ void TypingScreen::online() {
         text(content_, 12, 101, "3-12 letters, digits, _ or -", &lv_font_montserrat_12, muted_);
         footer("Enter Register", "Bksp Fix", "Esc Back");
     } else if (panel == OnlinePanel::Board) {
-        std::snprintf(buffer, sizeof(buffer), "%us / %s / TOP 5", typing_.online_duration(), model::TypingModel::pack_name(visible_pack_));
+        std::snprintf(buffer, sizeof(buffer), "30s / ENGLISH / TOP 5");
         text(content_, 12, 34, buffer, &lv_font_montserrat_12, ink_);
         int y = 53;
         for (const auto& row : typing_.ranking()) {
@@ -200,7 +200,7 @@ void TypingScreen::online() {
             lv_obj_set_width(label, 103); lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_RIGHT, 0); y += 18;
         }
         if (typing_.ranking().empty()) text(content_, 12, 78, "No scores yet. Be the first!", &lv_font_montserrat_14, muted_);
-        footer("1 30s / 2 60s", "Tab Words", "Esc Menu");
+        footer("Enter Menu", "6 Contact", "Esc Back");
         return;
     } else if (panel == OnlinePanel::Busy) {
         text(content_, 12, 53, "Connecting...", &lv_font_montserrat_20, ink_);
@@ -209,9 +209,9 @@ void TypingScreen::online() {
     } else {
         std::snprintf(buffer, sizeof(buffer), "Player: %s", typing_.player_name().empty() ? "not registered" : typing_.player_name().c_str());
         text(content_, 12, 37, buffer, &lv_font_montserrat_14, ink_);
-        std::snprintf(buffer, sizeof(buffer), "%us / %s", typing_.online_duration(), model::TypingModel::pack_name(visible_pack_));
+        std::snprintf(buffer, sizeof(buffer), "30s / ENGLISH");
         text(content_, 12, 62, buffer, &lv_font_montserrat_20, accent_);
-        text(content_, 12, 91, "1 30s / 2 60s   Tab: words", &lv_font_montserrat_12, muted_);
+        text(content_, 12, 91, "One challenge. One leaderboard.", &lv_font_montserrat_12, muted_);
         text(content_, 12, 108, "6 Optional contact email", &lv_font_montserrat_12, muted_);
         footer("Enter Start", "4 Rankings", "Esc Back");
     }

@@ -1,11 +1,11 @@
 {
   "app_name": "M5 Cardputer Zero Typing",
   "package_name": "key-dash",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A StackChan-inspired typing game with online rankings and optional private event contact.",
   "store": {
     "summary": "Small keys. Quick fingers. A pocket typing challenge.",
-    "description": "Type short English or programming words in 30-second, 60-second or untimed ten-word rounds. Live WPM, accuracy, strict letter matching, automatic word advancement, miss counts and local personal bests. Optional online challenges share your player name and server-verified score on public leaderboards. Offline play does not connect. A mascot inspired by the official M5Stack StackChan K151 accompanies your rounds. Optional private contact email can be managed on your phone using a short-lived QR code.",
+    "description": "Type short English or programming words in 30-second, 60-second or untimed ten-word rounds. Live WPM, accuracy, strict letter matching, automatic word advancement, miss counts and local personal bests. Optional English-only 30-second online challenges share your player name and server-verified score on public leaderboards. Offline play does not connect. A mascot inspired by the official M5Stack StackChan K151 accompanies your rounds. Optional private contact email can be managed on your phone using a short-lived QR code.",
     "locales": {
       "ja": {
         "summary": "短い単語を打って、速さと正確さに挑戦。小さなキーボードのタイピングゲーム。"
