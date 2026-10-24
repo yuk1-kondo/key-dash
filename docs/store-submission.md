@@ -46,3 +46,7 @@ M5Stack公式StackChan K151を参考にした独自イラストを使用する�
 ## 名称変更
 
 ユーザー指定により表示名をtaM5CZTypingへ変更。内部パッケージ名key-dash、共有コードM5ZTとランキングデータは維持。旧版の実機動画は旧名M5CZTで撮影したものです。
+
+## Store審査提出済み
+
+新名taM5CZTypingの0.4.2-rev1を公式ポータルから提出済み。自動検査通過、審査PR: https://github.com/CardputerZero/packages/pull/206 。実機動画とソース・ランキングURLをPRコメントへ追記済み。動画は旧表示名M5CZTの0.4.1で撮影したことを明記。旧PR205は運営へクローズ依頼済み。掲載はメンテナーの承認待ちです。

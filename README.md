@@ -127,7 +127,7 @@ APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display 
 
 ## Store preparation
 
-`app-builder.json` is an unpublished Store draft. Network permission is true for optional online features; the other six optional permissions remain false. The source repository is https://github.com/yuk1-kondo/key-dash (public), while the ranking website/API source is public at https://github.com/yuk1-kondo/key-dash-ranking. Store share code `M5ZT` is prepared and the official metadata preflight passed. Initial Store submission is waiting for developer-portal GitHub login and a real-device demo video. See [submission checklist](docs/store-submission.md).
+`app-builder.json` is an unpublished Store draft. Network permission is true for optional online features; the other six optional permissions remain false. The source repository is https://github.com/yuk1-kondo/key-dash (public), while the ranking website/API source is public at https://github.com/yuk1-kondo/key-dash-ranking. Store share code `M5ZT` is prepared and the official metadata preflight passed. Store submission [#206](https://github.com/CardputerZero/packages/pull/206) passed automated checks and awaits maintainer review. A real-device demo is linked in the PR; it shows the previous M5CZT name in version 0.4.1. See [submission checklist](docs/store-submission.md).
 
 Before submission, test on the real device and film **APPLaunch → start → typing and typo correction → round result → exit**. Attach that physical-device demo to the Store submission PR. Simulator video is not a substitute. GitHub publication does not constitute a Store submission.
 
