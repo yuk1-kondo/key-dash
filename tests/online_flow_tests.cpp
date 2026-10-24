@@ -35,15 +35,16 @@ int main() {
     const auto started = now();
     for (unsigned count = 0; count < 8; count++) {
         const auto word = vm.state().word();
-        if (!count) { vm.key('z', now()); std::this_thread::sleep_for(60ms); vm.key(LV_KEY_BACKSPACE, now()); }
+        if (!count) { vm.key(word[0] == 'z' ? 'x' : 'z', now()); std::this_thread::sleep_for(60ms); vm.key(LV_KEY_BACKSPACE, now()); }
         for (char ch : word) { vm.key(ch, now()); std::this_thread::sleep_for(60ms); }
-        vm.key(LV_KEY_ENTER, now()); std::this_thread::sleep_for(60ms);
+        assert(vm.state().input().empty() && vm.state().completed_words() == count + 1);
     }
     while (now() - started < 30030) { vm.tick(now()); std::this_thread::sleep_for(10ms); }
     vm.tick(now()); assert(vm.state().page() == model::TypingPage::Results);
     const auto deadline = now() + 12000;
     while (vm.online_message().find("Uploading") != std::string::npos && now() < deadline) { vm.tick(now()); std::this_thread::sleep_for(10ms); }
     if (vm.online_message().find("Score registered!") == std::string::npos) { std::cerr << vm.online_message() << '\n'; return 1; }
+    assert(vm.state().mistakes() == 1);
     const auto wpm = vm.state().wpm(0), accuracy = vm.state().accuracy();
     assert(wpm > 0 && accuracy < 100);
     vm.key('4', now()); pump(vm); assert(vm.online_panel() == viewmodel::OnlinePanel::Board);

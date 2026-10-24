@@ -62,9 +62,13 @@ void TypingModel::load() {
     TypingRecords loaded;
     bool valid = static_cast<bool>(file >> magic >> version >> loaded.rounds >> loaded.words >> mode >> pack >> daylight);
     for (auto& record : loaded.best_wpm) valid = static_cast<bool>(file >> record) && record <= 999 && valid;
-    valid = valid && magic == "KEY_DASH" && version == 1 && loaded.rounds <= maximum_counter &&
+    if (version == 2) {
+        for (auto& record : loaded.legacy_best_wpm) valid = static_cast<bool>(file >> record) && record <= 999 && valid;
+    }
+    valid = valid && magic == "KEY_DASH" && (version == 1 || version == 2) && loaded.rounds <= maximum_counter &&
         loaded.words <= maximum_counter && mode <= 2 && pack <= 1 && daylight <= 1 && !(file >> trailing);
     if (!valid) { storage_error_ = "Save unreadable; original kept"; storage_blocked_ = true; return; }
+    if (version == 1) { loaded.legacy_best_wpm = loaded.best_wpm; loaded.best_wpm.fill(0); dirty_ = true; }
     loaded.selected_mode = static_cast<TypingMode>(mode);
     loaded.selected_pack = static_cast<WordPack>(pack);
     loaded.daylight = daylight != 0; records_ = loaded;
@@ -79,10 +83,12 @@ bool TypingModel::save() {
     auto temporary = save_file_; temporary += ".tmp";
     {
         std::ofstream file(temporary, std::ios::trunc);
-        file << "KEY_DASH 1\n" << records_.rounds << ' ' << records_.words << ' '
+        file << "KEY_DASH 2\n" << records_.rounds << ' ' << records_.words << ' '
              << static_cast<unsigned>(records_.selected_mode) << ' ' << static_cast<unsigned>(records_.selected_pack)
              << ' ' << records_.daylight << '\n';
         for (auto record : records_.best_wpm) file << record << ' ';
+        file << '\n';
+        for (auto record : records_.legacy_best_wpm) file << record << ' ';
         file << '\n'; file.flush();
         if (!file) { storage_error_ = "Could not write save"; return false; }
         file.close();
@@ -167,20 +173,17 @@ void TypingModel::type(char character, uint64_t now) {
     if (page_ == TypingPage::Ready) { page_ = TypingPage::Running; started_at_ = now; }
     if (character >= 'A' && character <= 'Z') character = static_cast<char>(character - 'A' + 'a');
     add_bounded(attempts_); last_key_at_ = now;
-    if (character == ' ') {
-        last_key_correct_ = input_ == word_;
-        if (!last_key_correct_) return;
-        add_bounded(correct_attempts_); add_bounded(completed_words_);
-        add_bounded(committed_characters_, static_cast<unsigned>(word_.size() + 1));
-        input_.clear();
-        if (records_.selected_mode == TypingMode::Practice && completed_words_ == practice_words) finish(elapsed_ms(now));
-        else next_word();
-        return;
-    }
     const auto position = input_.size();
     last_key_correct_ = position < word_.size() && word_[position] == character;
-    if (last_key_correct_) add_bounded(correct_attempts_);
-    if (input_.size() < word_.size() + 4) input_.push_back(character);
+    if (!last_key_correct_) return;
+    add_bounded(correct_attempts_);
+    input_.push_back(character);
+    if (input_ != word_) return;
+    add_bounded(completed_words_);
+    add_bounded(committed_characters_, static_cast<unsigned>(word_.size()));
+    input_.clear();
+    if (records_.selected_mode == TypingMode::Practice && completed_words_ == practice_words) finish(elapsed_ms(now));
+    else next_word();
 }
 void TypingModel::backspace(uint64_t now) {
     if (page_ != TypingPage::Running || tick(now)) return;

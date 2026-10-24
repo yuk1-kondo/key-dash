@@ -14,7 +14,7 @@ manifest = json.loads((root/'app-builder.json').read_text())
 binary = args.binary.read_bytes()
 if binary[:6] != b'\x7fELF\x02\x01' or struct.unpack_from('<H', binary, 18)[0] != 183:
  raise SystemExit('Refusing to package: binary must be a little-endian ELF64 AArch64 executable.')
-name = manifest['package_name']; version = manifest['version']+'-rev2'
+name = manifest['package_name']; version = manifest['version']+'-rev1'
 control = f'''Package: {name}
 Version: {version}
 Section: APPLaunch

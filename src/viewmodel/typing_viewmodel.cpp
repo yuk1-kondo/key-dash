@@ -40,8 +40,8 @@ void TypingViewModel::key(uint32_t key, uint64_t now) {
         if (key == LV_KEY_BACKSPACE || key == LV_KEY_DEL) {
             if (page == TypingPage::Running) event = '\b';
             state_.backspace(now);
-        } else if (key == LV_KEY_ENTER || (key >= 32 && key <= 126)) {
-            event = key == LV_KEY_ENTER ? ' ' : static_cast<char>(key);
+        } else if (key >= 32 && key <= 126) {
+            event = static_cast<char>(key);
             if (page == TypingPage::Ready && event == ' ') event = '\0';
             if (event) state_.type(event, now);
         }

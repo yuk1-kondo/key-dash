@@ -8,7 +8,6 @@ void require(bool value, const char* message) { if (!value) throw std::runtime_e
 void complete_word(model::TypingModel& state, uint64_t& time) {
  const auto word = state.word();
  for (char character : word) { state.type(character, time); time += 120; }
- state.type(' ', time); time += 120;
 }
 int main() {
  const auto directory = std::filesystem::temp_directory_path() / ("key-dash-test-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
@@ -21,14 +20,16 @@ int main() {
   state.type(' ',100); state.backspace(200);
   require(state.page()==TypingPage::Ready && state.attempts()==0,"empty submits/backspaces do not start timer");
   const auto word=state.word(); const char wrong=word[0]=='x'?'z':'x';
-  state.type(wrong,1000); require(state.page()==TypingPage::Running && state.accuracy()==0,"first typo starts clock and counts");
-  state.type(' ',1100); require(state.completed_words()==0 && state.attempts()==2,"wrong word cannot be skipped");
-  state.backspace(1200); require(state.input().empty() && state.attempts()==2,"backspace corrects without erasing history");
+  state.type(wrong,1000); require(state.input().empty() && state.mistakes()==1,"wrong letter is rejected and counted"); require(state.page()==TypingPage::Running && state.accuracy()==0,"first typo starts clock and counts");
+  state.type(word[1],1050); require(state.input().empty() && state.mistakes()==2,"later correct letter cannot skip expected first letter");
+  state.type(' ',1100); require(state.completed_words()==0 && state.attempts()==3,"wrong word cannot be skipped");
+  state.backspace(1200); require(state.input().empty() && state.attempts()==3,"backspace corrects without erasing history");
   uint64_t time=1300; complete_word(state,time);
-  require(state.completed_words()==1 && state.input().empty(),"exact word plus space advances");
+  require(state.completed_words()==1 && state.input().empty(),"last letter advances automatically");
+  require(state.mistakes()==3,"all rejected keys remain counted after word transition");
   require(state.word()!=word,"no immediate repeated word");
-  const auto correct=static_cast<unsigned>(word.size()+1);
-  require(state.accuracy()==correct*100/(correct+2),"corrected typos remain in accuracy");
+  const auto correct=static_cast<unsigned>(word.size());
+  require(state.accuracy()==correct*100/(correct+3),"rejected typos remain in accuracy");
   require(state.remaining_ms(30999)==1,"exact timer boundary");
   const auto attempts=state.attempts();state.type(state.word()[0],31000);
   require(state.page()==TypingPage::Results && state.attempts()==attempts,"late key cannot score");
@@ -48,7 +49,7 @@ int main() {
   model::TypingModel practice(directory/"practice.txt");practice.prepare(TypingMode::Practice,0);
   time=2000;
   for(unsigned index=0;index<10;++index) complete_word(practice,time);
-  require(practice.page()==TypingPage::Results && practice.completed_words()==10,"practice ends after ten confirmed words");
+  require(practice.page()==TypingPage::Results && practice.completed_words()==10,"practice ends after ten automatically completed words");
   require(practice.wpm(0)>0 && practice.accuracy()==100 && practice.new_best(),"practice speed and accuracy");
   const auto english_best=practice.best_wpm();practice.back();practice.toggle_pack();
   require(practice.best_wpm()==0,"word packs have separate personal bests");
@@ -60,6 +61,12 @@ int main() {
   const auto first=uppercase.word()[0];uppercase.type(static_cast<char>(first-'a'+'A'),0);
   require(uppercase.correct_prefix()==1 && uppercase.accuracy()==100,"case insensitive and timestamp zero supported");
   require(!uppercase.tick(59999) && uppercase.tick(60000),"60-second mode boundary");
+  {std::ofstream file(directory/"legacy.txt");file<<"KEY_DASH 1\n4 20 0 0 1\n42 0 0 0 0 0\n";}
+  model::TypingModel legacy(directory/"legacy.txt");
+  require(legacy.best_wpm()==0 && legacy.records().legacy_best_wpm[0]==42 && legacy.records().rounds==4,"old-rule best retained separately without mixing new scoring");
+  require(legacy.save(),"legacy record migration saves");
+  model::TypingModel migrated(directory/"legacy.txt");
+  require(migrated.records().legacy_best_wpm[0]==42 && migrated.storage_error().empty(),"legacy history survives new-format reload");
   {std::ofstream file(directory/"bad.txt");file<<"KEY_DASH 1\n-1 0 0 0 0\n0 0 0 0 0 0\n";}
   model::TypingModel bad(directory/"bad.txt");require(!bad.storage_error().empty(),"invalid save detected");
   bad.toggle_theme();require(!bad.save(),"invalid original never overwritten");

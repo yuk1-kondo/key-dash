@@ -7,7 +7,7 @@ parser.add_argument('--deb',type=Path,default=None)
 parser.add_argument('--require-store',action='store_true')
 args=parser.parse_args()
 manifest=json.loads((root/'app-builder.json').read_text());store=manifest['store']
-deb=args.deb or root/f"dist/key-dash_{manifest['version']}-rev2_arm64.deb"
+deb=args.deb or root/f"dist/key-dash_{manifest['version']}-rev1_arm64.deb"
 raw=deb.read_bytes();assert raw[:8]==b'!<arch>\n','Not a Debian ar archive'
 parts={};offset=8
 while offset<len(raw):
@@ -16,7 +16,7 @@ while offset<len(raw):
 assert parts['debian-binary']==b'2.0\n'
 with tarfile.open(fileobj=io.BytesIO(parts['control.tar.gz'])) as tar:
  control=tar.extractfile('./control').read().decode()
-for field in ['Package: '+manifest['package_name'],'Version: '+manifest['version']+'-rev2','Architecture: arm64']:
+for field in ['Package: '+manifest['package_name'],'Version: '+manifest['version']+'-rev1','Architecture: arm64']:
  assert field in control,field
 with tarfile.open(fileobj=io.BytesIO(parts['data.tar.gz'])) as tar:
  directories = set()

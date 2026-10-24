@@ -14,7 +14,11 @@ int main(){
   vm.key(vm.state().word()[0],1000);require(vm.state().input().size()==1,"physical letter routes");
   vm.key(LV_KEY_BACKSPACE,1100);require(vm.state().input().empty(),"backspace routes");
   const auto theme=vm.state().records().daylight;
-  vm.key('0',1200);require(vm.state().input()=="0" && vm.state().records().daylight==theme,"game input cannot toggle theme");
+  vm.key('0',1200);require(vm.state().input().empty() && vm.state().mistakes()==1 && vm.state().records().daylight==theme,"game input cannot toggle theme");
+  vm.key(LV_KEY_ENTER,1250);require(vm.state().input().empty() && vm.state().mistakes()==1,"Enter does not submit or count as a typing attempt");
+  const auto word=vm.state().word();
+  for (char ch : word) vm.key(ch,1300);
+  require(vm.state().completed_words()==1 && vm.state().input().empty(),"controller advances immediately without Enter");
   vm.key(LV_KEY_ESC,31000);
   require(vm.state().page()==model::TypingPage::Results && vm.state().records().rounds==1,"deadline processed before escape");
   require(std::filesystem::exists(directory/"state.txt"),"finished result saved");

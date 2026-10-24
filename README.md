@@ -1,6 +1,8 @@
 # M5 Cardputer Zero Typing (M5CZT)
 
-**Small keys. Quick fingers.** A pocket typing game for the CardputerZero keyboard.
+**Small keys. Quick fingers.**
+
+Rules 2 (v0.4.0): wrong letters count as misses and never advance the cursor. Type the expected letter to continue. The final correct letter automatically starts the next word; no Enter/Space confirmation is needed. Backspace undoes accepted text. Live and result screens show misses. WPM counts actual accepted letters only (five characters per standard word). Legacy local bests and online rankings are retained separately. A pocket typing game for the CardputerZero keyboard.
 
 ![M5CZT](screenshot/game.png)
 
@@ -21,7 +23,7 @@ Public leaderboard: https://yuk1-kondo.github.io/key-dash-ranking/
 - **Enter**: replay the selected mode.
 - **Esc**: return to the menu; from the menu, save and quit.
 
-The clock starts with your first typed character, not on entering the ready screen; empty Space/Enter submissions are ignored. Match the lowercase word, then press **Space or Enter** to confirm it. **Backspace** removes the last typed character. Mistakes stay visible until corrected; wrong words cannot be skipped. All words use plain English letters; uppercase input is accepted case-insensitively. Physical key-repeat is ignored: each character needs a separate press.
+The clock starts with your first typed character, not on entering the ready screen; Enter and initial Space do not start it. Type the expected lowercase letter; wrong keys count as misses without changing the accepted prefix. The final correct letter advances immediately, without Enter or Space. **Backspace** undoes an accepted letter. Uppercase input is accepted case-insensitively. Physical key-repeat is ignored: each character needs a separate press. See [controls and bottom-bar documentation](docs/controls.md).
 
 The built-in desktop simulator also lets you click the physical keys on the CardputerZero illustration. There is no Japanese IME/romaji-conversion mode in this first version.
 
@@ -111,12 +113,12 @@ python3 scripts/package_deb.py
 python3 scripts/validate_release.py
 ```
 
-The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.3.1-rev2_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
+The Python packager verifies a genuine ELF64 AArch64 executable and produces `dist/key-dash_0.4.0-rev1_arm64.deb`. It works on macOS, whose CPack distribution lacks the DEB generator. The device package contains the binary, APPLaunch entry, icon, documentation and applicable static-dependency licenses; no daemon is installed.
 
 After copying the package to the device:
 
 ```sh
-sudo apt install ./key-dash_0.3.1-rev2_arm64.deb
+sudo apt install ./key-dash_0.4.0-rev1_arm64.deb
 ```
 
 APPLaunch starts `/usr/bin/key-dash` as the logged-in user. The default display is `/dev/fb0`; the existing platform driver discovers evdev keyboards, with A–Z, digits, Space, Enter, Backspace and Tab mapping. Existing non-root access to the device nodes is required. Do not run as root.

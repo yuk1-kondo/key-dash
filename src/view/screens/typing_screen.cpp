@@ -43,7 +43,7 @@ void TypingScreen::set_text(lv_obj_t* label, const char* value) {
 void TypingScreen::build_content(lv_obj_t* content) { content_ = content; rebuild(); }
 void TypingScreen::rebuild() {
     lv_obj_clean(content_);
-    timer_ = speed_ = words_ = accuracy_ = typed_ = message_ = progress_ = cursor_ = nullptr;
+    timer_ = speed_ = words_ = accuracy_ = mistakes_ = typed_ = message_ = progress_ = cursor_ = nullptr;
     tiles_.fill(nullptr); letters_.fill(nullptr);
     const auto& state = typing_.state(); visible_page_ = state.page();
     visible_pack_ = state.records().selected_pack; visible_mode_ = state.records().selected_mode;
@@ -120,9 +120,10 @@ void TypingScreen::game() {
     typed_ = text(content_, 12, 104, "", &lv_font_montserrat_12, muted_);
     lv_obj_set_width(typed_, 240); lv_obj_set_style_text_align(typed_, LV_TEXT_ALIGN_CENTER, 0);
     words_ = text(content_, 12, 127, "0 words", &lv_font_montserrat_12, muted_);
-    accuracy_ = text(content_, 175, 127, "100% accuracy", &lv_font_montserrat_12, muted_);
-    lv_obj_set_width(accuracy_, 133); lv_obj_set_style_text_align(accuracy_, LV_TEXT_ALIGN_RIGHT, 0);
-    footer("Bksp  Fix", "Space  Next", "Esc  Stop");
+    mistakes_ = text(content_, 110, 127, "0 misses", &lv_font_montserrat_12, muted_);
+    accuracy_ = text(content_, 202, 127, "100%", &lv_font_montserrat_12, muted_);
+    lv_obj_set_width(accuracy_, 106); lv_obj_set_style_text_align(accuracy_, LV_TEXT_ALIGN_RIGHT, 0);
+    footer("Bksp Undo", "Auto Next", "Esc Stop");
 }
 void TypingScreen::results() {
     const auto& state = typing_.state();
@@ -139,7 +140,9 @@ void TypingScreen::results() {
     text(content_, 199, 85, "accuracy", &lv_font_montserrat_12, muted_);
     std::snprintf(buffer, sizeof(buffer), "%u words / %llus", state.completed_words(),
         static_cast<unsigned long long>(state.elapsed_ms(0) / 1000));
-    text(content_, 136, 108, buffer, &lv_font_montserrat_12, muted_);
+    text(content_, 136, 103, buffer, &lv_font_montserrat_12, muted_);
+    std::snprintf(buffer, sizeof(buffer), "%u miss%s", state.mistakes(), state.mistakes() == 1 ? "" : "es");
+    text(content_, 136, 116, buffer, &lv_font_montserrat_12, state.mistakes() ? danger_ : muted_);
     std::snprintf(buffer, sizeof(buffer), "Personal best: %u WPM", state.best_wpm());
     auto* status = text(content_, 12, 130, typing_.online_round() ? typing_.online_message().c_str() : buffer, &lv_font_montserrat_12, accent_);
     lv_obj_set_size(status, 296, 16); lv_label_set_long_mode(status, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -150,9 +153,9 @@ void TypingScreen::help() {
     rectangle(content_, 12, 28, 296, 1, surface_);
     text(content_, 12, 37, "1 30s / 2 60s / 3 Untimed practice", &lv_font_montserrat_12, ink_);
     text(content_, 12, 56, "Tab English or Code. 0 Day or night.", &lv_font_montserrat_12, muted_);
-    text(content_, 12, 76, "Type a word, then Space or Enter.", &lv_font_montserrat_12, ink_);
-    text(content_, 12, 96, "Backspace fixes typos. Esc stops.", &lv_font_montserrat_12, ink_);
-    text(content_, 12, 117, "1 word = 5 characters. Autosaves.", &lv_font_montserrat_12, muted_);
+    text(content_, 12, 76, "Last letter goes to the next word.", &lv_font_montserrat_12, ink_);
+    text(content_, 12, 96, "Wrong key? Retry. Bksp undoes.", &lv_font_montserrat_12, ink_);
+    text(content_, 12, 117, "Misses counted. Esc stops. Autosave.", &lv_font_montserrat_12, muted_);
     footer("Enter Close", "Esc Back", "5 Online");
 }
 void TypingScreen::online() {
@@ -228,7 +231,8 @@ void TypingScreen::refresh(uint64_t now) {
     set_text(timer_, buffer);
     std::snprintf(buffer, sizeof(buffer), "%u WPM", state.wpm(now)); set_text(speed_, buffer);
     std::snprintf(buffer, sizeof(buffer), "%u %s", state.completed_words(), state.completed_words() == 1 ? "word" : "words"); set_text(words_, buffer);
-    std::snprintf(buffer, sizeof(buffer), "%u%% accuracy", state.accuracy()); set_text(accuracy_, buffer);
+    std::snprintf(buffer, sizeof(buffer), "%u%%", state.accuracy()); set_text(accuracy_, buffer);
+    std::snprintf(buffer, sizeof(buffer), "%u miss%s", state.mistakes(), state.mistakes() == 1 ? "" : "es"); set_text(mistakes_, buffer);
     const auto& word = state.word(); const auto& input = state.input();
     const int left = (252 - static_cast<int>(word.size()) * 26) / 2;
     for (unsigned index = 0; index < tiles_.size(); ++index) {
@@ -245,7 +249,7 @@ void TypingScreen::refresh(uint64_t now) {
     std::snprintf(buffer, sizeof(buffer), "you: %s", input.empty() ? "_" : input.c_str()); set_text(typed_, buffer);
     const bool mistake = !state.last_key_correct() && now >= state.last_key_at() && now - state.last_key_at() < 600;
     const char* message = state.page() == model::TypingPage::Ready ? "TYPE TO START" :
-        input == word ? "NICE. SPACE FOR THE NEXT WORD" : mistake ? "BACKSPACE TO FIX" : "FIND YOUR RHYTHM";
+        mistake ? "MISS! RETRY THE SAME LETTER" : "FIND YOUR RHYTHM";
     set_text(message_, message);
     lv_obj_set_style_text_color(message_, lv_color_hex(mistake ? danger_ : input == word ? accent_ : muted_), 0);
     const auto width = state.limit_ms() ? static_cast<unsigned>(state.remaining_ms(now) * 296 / state.limit_ms()) : state.completed_words() * 296 / 10;

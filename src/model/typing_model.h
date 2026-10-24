@@ -13,6 +13,7 @@ struct TypingRecords {
     unsigned rounds{0};
     unsigned words{0};
     std::array<unsigned, 6> best_wpm{};
+    std::array<unsigned, 6> legacy_best_wpm{};
     TypingMode selected_mode{TypingMode::Sprint30};
     WordPack selected_pack{WordPack::English};
     bool daylight{true};
@@ -37,6 +38,7 @@ public:
     unsigned attempts() const { return attempts_; }
     unsigned completed_words() const { return completed_words_; }
     unsigned accuracy() const;
+    unsigned mistakes() const { return attempts_ - correct_attempts_; }
     unsigned wpm(uint64_t now) const;
     unsigned best_wpm() const;
     unsigned correct_prefix() const;

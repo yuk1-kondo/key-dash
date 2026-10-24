@@ -111,7 +111,7 @@ void TypingViewModel::online_key(uint32_t key, uint64_t) {
     else if (key == LV_KEY_ENTER) {
         if (panel_ == OnlinePanel::Board) { panel_ = OnlinePanel::Menu; return; }
         if (player_token_.empty()) { panel_ = OnlinePanel::Name; online_message_ = "Public name. No GitHub login needed."; return; }
-        request(Request::Challenge, "POST", "/v1/runs", Json{{"mode", online_duration_}, {"pack", pack_name(state_.records().selected_pack)}, {"rules", 1}}.dump());
+        request(Request::Challenge, "POST", "/v1/runs", Json{{"mode", online_duration_}, {"pack", pack_name(state_.records().selected_pack)}, {"rules", 2}}.dump());
     }
 }
 void TypingViewModel::online_poll(uint64_t now) {
@@ -140,7 +140,7 @@ void TypingViewModel::online_poll(uint64_t now) {
         } else if (action == Request::Challenge) {
             const auto seed = data.at("seed").get<uint32_t>();
             const auto id = data.at("id").get<std::string>();
-            if (data.at("rules") != 1 || data.at("mode") != online_duration_ || data.at("pack") != pack_name(state_.records().selected_pack) || !seed || id.size() != 36 || id.find_first_not_of("0123456789abcdef-") != std::string::npos) throw std::runtime_error("Invalid challenge response");
+            if (data.at("rules") != 2 || data.at("mode") != online_duration_ || data.at("pack") != pack_name(state_.records().selected_pack) || !seed || id.size() != 36 || id.find_first_not_of("0123456789abcdef-") != std::string::npos) throw std::runtime_error("Invalid challenge response");
             run_id_ = id; events_.clear(); pending_score_.clear(); submitted_ = false;
             online_round_ = true; online_started_ = 0; online_ready_ = now;
             state_.prepare_online(online_duration_ == 60 ? model::TypingMode::Sprint60 : model::TypingMode::Sprint30, state_.records().selected_pack, seed, now);

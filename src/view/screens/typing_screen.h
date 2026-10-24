@@ -29,6 +29,7 @@ private:
     lv_obj_t* speed_{nullptr};
     lv_obj_t* words_{nullptr};
     lv_obj_t* accuracy_{nullptr};
+    lv_obj_t* mistakes_{nullptr};
     lv_obj_t* typed_{nullptr};
     lv_obj_t* message_{nullptr};
     lv_obj_t* progress_{nullptr};
