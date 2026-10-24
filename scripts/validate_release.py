@@ -1,5 +1,5 @@
 """Validate the locally generated device package; optionally enforce store readiness."""
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import argparse, io, json, re, struct, tarfile
 root=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser()
@@ -7,7 +7,7 @@ parser.add_argument('--deb',type=Path,default=None)
 parser.add_argument('--require-store',action='store_true')
 args=parser.parse_args()
 manifest=json.loads((root/'app-builder.json').read_text());store=manifest['store']
-deb=args.deb or root/f"dist/key-dash_{manifest['version']}-rev1_arm64.deb"
+deb=args.deb or root/f"dist/key-dash_{manifest['version']}-rev2_arm64.deb"
 raw=deb.read_bytes();assert raw[:8]==b'!<arch>\n','Not a Debian ar archive'
 parts={};offset=8
 while offset<len(raw):
@@ -16,9 +16,16 @@ while offset<len(raw):
 assert parts['debian-binary']==b'2.0\n'
 with tarfile.open(fileobj=io.BytesIO(parts['control.tar.gz'])) as tar:
  control=tar.extractfile('./control').read().decode()
-for field in ['Package: '+manifest['package_name'],'Version: '+manifest['version']+'-rev1','Architecture: arm64']:
+for field in ['Package: '+manifest['package_name'],'Version: '+manifest['version']+'-rev2','Architecture: arm64']:
  assert field in control,field
 with tarfile.open(fileobj=io.BytesIO(parts['data.tar.gz'])) as tar:
+ directories = set()
+ for member in tar.getmembers():
+  path = PurePosixPath(member.name)
+  assert path == PurePosixPath('.') or str(path.parent) in directories, f'Missing parent directory before {member.name}'
+  if member.isdir():
+   directories.add(str(path))
+   assert member.mode == 0o755, f'Incorrect directory permission: {member.name}'
  binary=tar.extractfile('./usr/bin/key-dash').read()
  assert binary[:6]==b'\x7fELF\x02\x01' and struct.unpack_from('<H',binary,18)[0]==183,'Not an ARM64 ELF executable'
  assert tar.getmember('./usr/bin/key-dash').mode==0o755

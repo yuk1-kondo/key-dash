@@ -8,7 +8,7 @@ CardputerZero向けの、小さなキーボードで遊ぶタイピングゲー�
 
 ## インストール
 
-実機へ `key-dash_0.3.1-rev1_arm64.deb` をコピーし、`sudo apt install ./key-dash_0.3.1-rev1_arm64.deb`。APPLaunchにM5CZTが追加されます。実機実行はまだ未検証です。
+実機へ `key-dash_0.3.1-rev2_arm64.deb` をコピーし、`sudo apt install ./key-dash_0.3.1-rev2_arm64.deb`。APPLaunchにM5CZTが追加されます。実機実行はまだ未検証です。
 
 Macでは `M5CZT-macOS-preview.zip` を展開し、M5CZT.appを開いてシミュレーターを試せます。Apple Silicon向けのローカルプレビューで、公証済みの一般向けMacアプリではありません。
 

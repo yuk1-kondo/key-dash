@@ -3,7 +3,7 @@
 macOS CPack distributions omit the DEB generator. This produces the same
 launcher/binary layout without installing a second packaging toolchain.
 """
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import argparse, gzip, io, json, struct, tarfile
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
@@ -14,7 +14,7 @@ manifest = json.loads((root/'app-builder.json').read_text())
 binary = args.binary.read_bytes()
 if binary[:6] != b'\x7fELF\x02\x01' or struct.unpack_from('<H', binary, 18)[0] != 183:
  raise SystemExit('Refusing to package: binary must be a little-endian ELF64 AArch64 executable.')
-name = manifest['package_name']; version = manifest['version']+'-rev1'
+name = manifest['package_name']; version = manifest['version']+'-rev2'
 control = f'''Package: {name}
 Version: {version}
 Section: APPLaunch
@@ -37,6 +37,15 @@ Categories=Game;
 def archive(files):
  buffer=io.BytesIO()
  with tarfile.open(fileobj=buffer,mode='w',format=tarfile.USTAR_FORMAT) as tar:
+  directories = {str(parent) for path, _, _ in files for parent in PurePosixPath(path).parents}
+  for directory in sorted(directories, key=lambda value: (len(PurePosixPath(value).parts), value)):
+   info = tarfile.TarInfo('./' if directory == '.' else './' + directory)
+   info.type = tarfile.DIRTYPE
+   info.mode = 0o755
+   info.uid = info.gid = 0
+   info.uname = info.gname = 'root'
+   info.mtime = 0
+   tar.addfile(info)
   for path,data,mode in files:
    info=tarfile.TarInfo('./'+path);info.size=len(data);info.mode=mode
    info.uid=info.gid=0;info.uname=info.gname='root';info.mtime=0
