@@ -1,6 +1,6 @@
 # taM5CZTyping Store 提出内容
 
-- 正式名: tataM5CZTypingyping
+- 正式名: taM5CZTyping
 - 略称: taM5CZTyping
 - パッケージ: key-dash
 - バージョン: 0.4.2-rev1 / arm64

@@ -1,5 +1,5 @@
 {
-  "app_name": "tataM5CZTypingyping",
+  "app_name": "taM5CZTyping",
   "package_name": "key-dash",
   "version": "0.4.2",
   "description": "A StackChan-inspired typing game with online rankings and optional private event contact.",
@@ -8,7 +8,7 @@
     "description": "Type short English or programming words in 30-second, 60-second or untimed ten-word rounds. Live WPM, accuracy, strict letter matching, automatic word advancement, miss counts and local personal bests. Optional English-only 30-second online challenges share your player name and server-verified score on public leaderboards. Offline play does not connect. A mascot inspired by the official M5Stack StackChan K151 accompanies your rounds. Optional private contact email can be managed on your phone using a short-lived QR code. This is an independent community app, not an official M5Stack application. Contact email is optional, private, unverified, and used only by the organizer for event result notifications; no automatic emails are sent.",
     "locales": {
       "ja": {
-        "title": "tataM5CZTypingyping",
+        "title": "taM5CZTyping",
         "summary": "小さなキーボードで腕試し。英単語を打って30秒のオンラインランキングに挑戦。",
         "description": "taM5CZTypingはCardputerZero向けのタイピングゲームです。正しい文字を入力すると進み、単語の最後の文字で自動的に次の単語へ切り替わります。ミス数・正確率・WPMを表示します。オンラインはEnglish・30秒の1部門。オフラインは30秒・60秒・10単語練習とEnglish/Codeを選べます。メール登録は任意・非公開で、短時間のQRからスマートフォンで登録・変更・削除できます。M5Stack公式StackChan K151を参考にした独自イラストを使用した非公式アプリです。"
       }

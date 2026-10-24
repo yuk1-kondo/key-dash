@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=taM5CZTyping
-Comment=tataM5CZTypingyping
+Comment=taM5CZTyping
 Comment=@APP_PACKAGE_DESCRIPTION@
 Exec=/usr/bin/@PROJECT_NAME@
 Icon=share/images/key-dash.png

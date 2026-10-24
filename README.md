@@ -1,4 +1,4 @@
-# tataM5CZTypingyping
+# taM5CZTyping
 
 **Small keys. Quick fingers.**
 
